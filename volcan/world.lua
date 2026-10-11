@@ -394,7 +394,7 @@ tryGrab = function(k, fresh)
     table.insert(k.followers, best)
     table.insert(world.particles, { heart = true, x = best.x, y = best.y - 40,
         vx = 0, vy = -50, r = 1, life = 0.8, max = 0.8 })
-    sfx.play("grab")
+    sfx.play("grab_" .. best.kind)       -- each animal has its own voice
 end
 
 function world.action(p, action)
@@ -624,7 +624,7 @@ end
 local function eruption()
     for _ = 1, love.math.random(2, 3) do addTongue() end
     world.shake = 1.2
-    sfx.play("rumble")
+    sfx.play("boom")
     for _ = 1, 10 do
         local tx = rand(40, world.lavaBase)
         table.insert(world.rocks, { x = 140, y = 100, sx = 140, sy = 100, tx = tx, ty = rand(TOP + 40, world.H - 20),
@@ -701,7 +701,14 @@ function world.update(dt)
         world.lavaProgress = progress
         world.lavaBase = LAVA_START + (LAVA_END - LAVA_START) * progress
         updateLavaFront()
+        -- the volcano rumbles (and makes its surprised face) just before
+        if not world.calm and not world.warned and world.nextEruption - world.time < 2.2 then
+            world.warned = true
+            sfx.play("rumble")
+        end
         if not world.calm and world.time >= world.nextEruption then
+            world.warned = false
+            world.duck = 1.5
             eruption()
             world.nextEruption = world.nextEruption + ERUPTION_EVERY
         end
@@ -721,6 +728,7 @@ function world.update(dt)
             world.phase = "results"
             world.resultsTime = 0
             sfx.play("win")
+            world.duck = 3
         end
     elseif world.phase == "results" then
         world.resultsTime = world.resultsTime + dt

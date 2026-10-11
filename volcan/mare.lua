@@ -85,7 +85,8 @@ end
 function mare.tryCatch(k)
     local f = fishInReach(k)
     if not f then return false end
-    if #k.followers + (k.fish or 0) >= k.look.carry then return "full" end
+    -- one fish at a time in the net (and it still counts in what the kid carries)
+    if (k.fish or 0) >= 1 or #k.followers + (k.fish or 0) >= k.look.carry then return "full" end
     f.state, f.kid = "carried", k
     k.fish = (k.fish or 0) + 1
     k.net = 0.5                        -- swing the net
@@ -93,7 +94,7 @@ function mare.tryCatch(k)
         table.insert(W.particles, { splash = true, x = f.x, y = f.y, vx = ctx.rand(-60, 60),
             vy = ctx.rand(-120, -50), r = ctx.rand(2, 4), life = 0.6, max = 0.6 })
     end
-    ctx.sfx.play("grab")
+    ctx.sfx.play("splash")
     return true
 end
 

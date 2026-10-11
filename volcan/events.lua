@@ -71,7 +71,7 @@ local function revealGold()
     local a = choices[love.math.random(#choices)]
     a.golden, a.value = true, GOLD_VALUE
     sparkle(a.x, a.y - 20, 30)
-    ctx.sfx.play("ready")
+    ctx.sfx.play("sparkle")
 end
 
 -- A free golden animal trots away from the kids nearby (never into the lava).
@@ -130,7 +130,7 @@ function events.tryGrab(k)
     table.insert(b.holders, k)
     k.holdingBig = true
     b.state = "held"
-    ctx.sfx.play("grab")
+    ctx.sfx.play("grab_" .. W.big.family)
     return true
 end
 
@@ -197,7 +197,8 @@ local function updateBig(dt)
             b.state, b.pen = "home", pen
             ctx.popup("+" .. BIG_VALUE, b.x, b.y - 80, { 1, 0.4, 0.5 }, true)
             sparkle(b.x, b.y - 30, 25)
-            ctx.sfx.play("win")
+            ctx.sfx.play("big")
+            W.duck = 2
         end
         -- the lava: it runs away, and comes back later
         if b.state ~= "home" and W.phase == "play" and ctx.inLava(b, 10) then
