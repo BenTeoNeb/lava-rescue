@@ -1,8 +1,9 @@
 -- events.lua: surprises during a game.
 --   The golden animal: once per game an animal turns golden. It is shy (it
 --   trots away from the kids) and worth 5.
---   The big animal: a big mother boar (or images/ours.png if there is one)
---   that only moves when TWO kids hold it together. Worth 3. 2+ players only.
+--   The big animal: a big mama of one of the animal families (fox, hen,
+--   squirrel, wild boar, hedgehog), drawn at random each game, that only moves
+--   when TWO kids hold it together. Worth 3. 2+ players only.
 
 local events = {}
 local g = love.graphics
@@ -25,7 +26,10 @@ function events.start(players)
     W.total = W.total + (GOLD_VALUE - 1)
     W.big = nil
     if players >= 2 then
-        W.big = { state = "waiting", at = BIG_AT, holders = {}, facing = 1, walk = 0, wobble = 0 }
+        local families = { "renard", "poule", "ecureuil", "marcassin", "herisson" }
+        local family = families[love.math.random(#families)]
+        W.big = { state = "waiting", at = BIG_AT, holders = {}, facing = 1, walk = 0, wobble = 0,
+            family = family }
         W.total = W.total + BIG_VALUE
     end
 end
@@ -235,9 +239,14 @@ function events.drawBig()
     if not b or b.state == "waiting" or b.state == "gone" then return end
     local wob = b.wobble > 0 and math.sin(W.time * 40) * 3 or 0
     local hop = b.moving and math.abs(math.sin(b.walk)) * 4 or 0
-    local kind = ctx.art.image("ours") and "ours" or "marcassin"
+    -- the mama's drawing, or her baby drawn bigger if there is no drawing
+    local mama = "maman_" .. b.family
     local anim = b.moving and (b.moving > 150 and "course" or "marche") or "repos"
-    ctx.art.animal(kind, b.x + wob, b.y - hop, b.facing, kind == "ours" and 1.6 or 2.4, true, anim, W.time)
+    if ctx.art.image(mama) then
+        ctx.art.animal(mama, b.x + wob, b.y - hop, b.facing, 1.0, true, anim, W.time)
+    else
+        ctx.art.animal(b.family, b.x + wob, b.y - hop, b.facing, 2.2, true, anim, W.time)
+    end
     -- the ropes from the kids' hands, in front of it
     for _, k in ipairs(b.holders) do
         g.setColor(0.25, 0.15, 0.08)

@@ -1,0 +1,699 @@
+{
+  "game": {
+    "max_scale": 3,
+    "outline": 0.9,
+    "fps": 24
+  },
+  "budget": {
+    "cap_usd": 20,
+    "confirm_above_usd": 1.0
+  },
+  "style": {
+    "text": "ART STYLE: warm, cute children's picture-book illustration for 6-year-olds.\nRounded, chunky, simple shapes; big heads; big friendly eyes with a small white\nhighlight; a thick, clean, uniform dark-brown outline (#3B2416) around every\nshape; flat colors with one soft cel-shading tone and a small highlight;\nsoft warm palette (no neon, no harsh black); light coming from the top-left.\nNo photorealism, no 3D render look, no texture noise, no text, no watermark.",
+    "reference": "planches/reference.png"
+  },
+  "paths": {
+    "sheets": "planches",
+    "videos": "videos",
+    "images": "images",
+    "cache": "../.cache/hd"
+  },
+  "assets": [
+    {
+      "sheet": "reference",
+      "kind": "style",
+      "desc": "a small 5-year-old boy with short dark curly hair, blue t-shirt and navy shorts; a red fox; a white hen; a round leafy green tree"
+    },
+    {
+      "sheet": "animaux",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "renard",
+          "desc": "a cute baby red fox, white chest and muzzle, white tip on a big fluffy tail",
+          "size": "h55"
+        },
+        {
+          "name": "poule",
+          "desc": "a cute plump white hen, small red comb, yellow beak, orange legs",
+          "size": "h51"
+        },
+        {
+          "name": "ecureuil",
+          "desc": "a cute red squirrel, cream belly, big fluffy tail curled up behind its back, sitting up",
+          "size": "h55"
+        },
+        {
+          "name": "marcassin",
+          "desc": "a cute wild boar piglet, light brown with cream stripes, pink snout, tiny curly tail",
+          "size": "h92"
+        },
+        {
+          "name": "herisson",
+          "desc": "a cute round hedgehog, brown spines, cream face and belly",
+          "size": "h41"
+        }
+      ]
+    },
+    {
+      "sheet": "objets",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "champignon",
+          "desc": "champignon",
+          "size": "h26"
+        },
+        {
+          "name": "fleurs",
+          "desc": "fleurs",
+          "size": "h30"
+        },
+        {
+          "name": "rocher",
+          "desc": "rocher",
+          "size": "h26"
+        },
+        {
+          "name": "buisson",
+          "desc": "buisson",
+          "size": "h37"
+        },
+        {
+          "name": "buche",
+          "desc": "buche",
+          "size": "h28"
+        },
+        {
+          "name": "glands",
+          "desc": "glands",
+          "size": "h21"
+        },
+        {
+          "name": "fougere",
+          "desc": "fougere",
+          "size": "h37"
+        },
+        {
+          "name": "feuille",
+          "desc": "feuille",
+          "size": "h15"
+        },
+        {
+          "name": "pomme_de_pin",
+          "desc": "pomme de pin",
+          "size": "h19"
+        },
+        {
+          "name": "branche",
+          "desc": "branche",
+          "size": "h19"
+        }
+      ]
+    },
+    {
+      "sheet": "maisons",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "maison_rouge",
+          "desc": "maison rouge",
+          "size": "h80"
+        },
+        {
+          "name": "maison_bleue",
+          "desc": "maison bleue",
+          "size": "h80"
+        },
+        {
+          "name": "maison_jaune",
+          "desc": "maison jaune",
+          "size": "h80"
+        }
+      ]
+    },
+    {
+      "sheet": "cabanes1",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "cabane_souche",
+          "desc": "cabane souche",
+          "size": "h80"
+        },
+        {
+          "name": "cabane_coquillage",
+          "desc": "cabane coquillage",
+          "size": "h80"
+        },
+        {
+          "name": "cabane_pomme_de_pin",
+          "desc": "cabane pomme de pin",
+          "size": "h80"
+        }
+      ]
+    },
+    {
+      "sheet": "cabanes2",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "cabane_rondins",
+          "desc": "cabane rondins",
+          "size": "h80"
+        },
+        {
+          "name": "cabane_champignon",
+          "desc": "cabane champignon",
+          "size": "h80"
+        },
+        {
+          "name": "maison_bocaux",
+          "desc": "maison bocaux",
+          "size": "h80"
+        }
+      ]
+    },
+    {
+      "sheet": "volcans",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "volcan_calme",
+          "desc": "a cute friendly cartoon volcano, calm happy face",
+          "size": "w260"
+        },
+        {
+          "name": "volcan_surpris",
+          "desc": "the same volcano, surprised face, lava bubbling",
+          "size": "w260"
+        },
+        {
+          "name": "volcan_fume",
+          "desc": "the same volcano puffing a big smoke cloud, cheeks puffed",
+          "size": "w260"
+        },
+        {
+          "name": "volcan_erupt",
+          "desc": "the same volcano erupting a lava fountain, laughing",
+          "size": "w260"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "mares",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "mare",
+          "desc": "a small round forest pond with grey stones, reeds and lily pads",
+          "size": "w270"
+        },
+        {
+          "name": "mare_seche",
+          "desc": "the same pond dried up: cracked mud, dry lily pads",
+          "size": "w270"
+        }
+      ]
+    },
+    {
+      "sheet": "poissons1",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "poisson1",
+          "desc": "an orange goldfish with a flowing tail",
+          "size": "h24"
+        },
+        {
+          "name": "poisson2",
+          "desc": "a bright yellow fish",
+          "size": "h24"
+        },
+        {
+          "name": "poisson3",
+          "desc": "a red fish",
+          "size": "h24"
+        },
+        {
+          "name": "poisson4",
+          "desc": "a light blue fish",
+          "size": "h24"
+        },
+        {
+          "name": "poisson5",
+          "desc": "a white koi with orange spots",
+          "size": "h24"
+        }
+      ]
+    },
+    {
+      "sheet": "poissons2",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "poisson6",
+          "desc": "a dark blue fish with orange stripes",
+          "size": "h24"
+        },
+        {
+          "name": "poisson7",
+          "desc": "a violet fish with yellow fins",
+          "size": "h24"
+        },
+        {
+          "name": "poisson8",
+          "desc": "a green speckled fish",
+          "size": "h24"
+        },
+        {
+          "name": "poisson9",
+          "desc": "a pink fish with white wavy stripes",
+          "size": "h24"
+        },
+        {
+          "name": "poisson10",
+          "desc": "a black fish with orange spots",
+          "size": "h24"
+        }
+      ]
+    },
+    {
+      "sheet": "bocaux",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "bocal1",
+          "desc": "a round glass jar with a cork, filled with water",
+          "size": "h40"
+        },
+        {
+          "name": "bocal2",
+          "desc": "a tall glass jar with a metal screw lid, filled with water",
+          "size": "h40"
+        },
+        {
+          "name": "bocal3",
+          "desc": "a glass jar with a red gingham cloth on top, filled with water",
+          "size": "h40"
+        },
+        {
+          "name": "bocal4",
+          "desc": "a wide glass jar with a cork, filled with water",
+          "size": "h40"
+        },
+        {
+          "name": "bocal5",
+          "desc": "a glass jar with a golden lid, filled with water",
+          "size": "h40"
+        },
+        {
+          "name": "bocal6",
+          "desc": "a glass jar with a blue gingham cloth on top, filled with water",
+          "size": "h40"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "pierres",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "pierre1",
+          "desc": "a big wide rounded grey stone",
+          "size": "w40"
+        },
+        {
+          "name": "pierre2",
+          "desc": "a round grey stone with a little green moss on top",
+          "size": "w40"
+        },
+        {
+          "name": "pierre3",
+          "desc": "a small round grey pebble",
+          "size": "w40"
+        },
+        {
+          "name": "pierre4",
+          "desc": "a flat long grey stone",
+          "size": "w40"
+        },
+        {
+          "name": "pierre5",
+          "desc": "a big rounded grey stone with a tiny flower next to it",
+          "size": "w40"
+        },
+        {
+          "name": "pierre6",
+          "desc": "a tall grey stone with moss on top",
+          "size": "w40"
+        },
+        {
+          "name": "pierre7",
+          "desc": "a squarish grey stone",
+          "size": "w40"
+        },
+        {
+          "name": "pierre8",
+          "desc": "a tiny round grey pebble",
+          "size": "w40"
+        }
+      ]
+    },
+    {
+      "sheet": "epuisettes",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "epuisette",
+          "desc": "epuisette",
+          "size": "w75"
+        },
+        {
+          "name": "epuisette_basse",
+          "desc": "epuisette basse",
+          "size": "w75"
+        },
+        {
+          "name": "epuisette2",
+          "desc": "epuisette2",
+          "size": "w75"
+        },
+        {
+          "name": "epuisette_pleine",
+          "desc": "epuisette pleine",
+          "size": "w75"
+        }
+      ]
+    },
+    {
+      "sheet": "_barriere_face",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "barriere_face",
+          "desc": "barriere face",
+          "size": "h30"
+        }
+      ]
+    },
+    {
+      "sheet": "_poteau",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "poteau",
+          "desc": "poteau",
+          "size": "h32"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "_portillon",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "portillon",
+          "desc": "portillon",
+          "size": "h44"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "arbres1",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "baobab",
+          "desc": "baobab",
+          "size": "h143"
+        },
+        {
+          "name": "erable",
+          "desc": "erable",
+          "size": "h138"
+        },
+        {
+          "name": "fruitier",
+          "desc": "fruitier",
+          "size": "h132"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "arbres1_brules",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "baobab_brule",
+          "desc": "baobab brule",
+          "size": "h143"
+        },
+        {
+          "name": "erable_brule",
+          "desc": "erable brule",
+          "size": "h138"
+        },
+        {
+          "name": "fruitier_brule",
+          "desc": "fruitier brule",
+          "size": "h132"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "arbres2",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "palmier",
+          "desc": "palmier",
+          "size": "h154"
+        },
+        {
+          "name": "cerisier",
+          "desc": "cerisier",
+          "size": "h127"
+        },
+        {
+          "name": "sapin",
+          "desc": "sapin",
+          "size": "h154"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "arbres2_brules",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "palmier_brule",
+          "desc": "palmier brule",
+          "size": "h154"
+        },
+        {
+          "name": "cerisier_brule",
+          "desc": "cerisier brule",
+          "size": "h127"
+        },
+        {
+          "name": "sapin_brule",
+          "desc": "sapin brule",
+          "size": "h154"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "arbres3",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "saule",
+          "desc": "saule",
+          "size": "h143"
+        },
+        {
+          "name": "bouleau",
+          "desc": "bouleau",
+          "size": "h160"
+        },
+        {
+          "name": "epicea",
+          "desc": "epicea",
+          "size": "h165"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "arbres3_brules",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "saule_brule",
+          "desc": "saule brule",
+          "size": "h143"
+        },
+        {
+          "name": "bouleau_brule",
+          "desc": "bouleau brule",
+          "size": "h160"
+        },
+        {
+          "name": "epicea_brule",
+          "desc": "epicea brule",
+          "size": "h165"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "arbres4",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "chene",
+          "desc": "chene",
+          "size": "h148"
+        },
+        {
+          "name": "peuplier",
+          "desc": "peuplier",
+          "size": "h170"
+        },
+        {
+          "name": "pommier",
+          "desc": "pommier",
+          "size": "h121"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "arbres4_brules",
+      "kind": "objects",
+      "items": [
+        {
+          "name": "chene_brule",
+          "desc": "chene brule",
+          "size": "h148"
+        },
+        {
+          "name": "peuplier_brule",
+          "desc": "peuplier brule",
+          "size": "h170"
+        },
+        {
+          "name": "pommier_brule",
+          "desc": "pommier brule",
+          "size": "h121"
+        }
+      ],
+      "aspect": 0.8
+    },
+    {
+      "sheet": "sol_tuile",
+      "kind": "tile",
+      "name": "herbe",
+      "tile": 380,
+      "desc": "soft green forest meadow ground: short grass with many small tufts, a few tiny wild flowers (yellow, white, light blue), a few small patches of lighter grass"
+    },
+    {
+      "sheet": "zina",
+      "kind": "character",
+      "name": "zina",
+      "size": "h126",
+      "desc": "cute girl about 7 years old, long dark curly hair, pink sweater, dark jeans, red sneakers",
+      "actions": {
+        "marche": "Walks in place: exactly two smooth, regular walk cycles.",
+        "course": "Runs in place, fast and energetic: two regular run cycles.",
+        "saut": "Jumps straight up in place and lands, twice: crouch, jump, land.",
+        "aie": "\"Ouch, my bottom is hot!\": hops up twice in surprise, both hands on the bottom, a funny cartoon ouch face, then lands."
+      },
+      "ranges": {
+        "marche": "6-45",
+        "course": "48-83",
+        "saut": "96-131",
+        "aie": "142-167"
+      }
+    },
+    {
+      "sheet": "rami",
+      "kind": "character",
+      "name": "rami",
+      "size": "h103",
+      "desc": "cute small boy about 5 years old, short brown hair, light blue striped shirt, denim shorts, red sneakers",
+      "actions": {
+        "marche": "Walks in place: exactly two smooth, regular walk cycles.",
+        "course": "Runs in place, fast and energetic: two regular run cycles.",
+        "saut": "Jumps straight up in place and lands, twice: crouch, jump, land.",
+        "aie": "\"Ouch, my bottom is hot!\": hops up twice in surprise, both hands on the bottom, a funny cartoon ouch face, then lands."
+      },
+      "ranges": {
+        "marche": "4-57",
+        "course": "60-99",
+        "saut": "104-147",
+        "aie": "150-183"
+      }
+    },
+    {
+      "sheet": "lila",
+      "kind": "character",
+      "name": "lila",
+      "size": "h126",
+      "desc": "cute girl about 7 years old, chestnut hair in a ponytail, yellow top with a white collar, flowery skirt, red sneakers",
+      "actions": {
+        "marche": "Walks in place: exactly two smooth, regular walk cycles.",
+        "course": "Runs in place, fast and energetic: two regular run cycles.",
+        "saut": "Jumps straight up in place and lands, twice: crouch, jump, land.",
+        "aie": "\"Ouch, my bottom is hot!\": hops up twice in surprise, both hands on the bottom, a funny cartoon ouch face, then lands."
+      },
+      "ranges": {
+        "marche": "4-45",
+        "course": "48-89",
+        "saut": "94-117",
+        "aie": "146-165"
+      }
+    },
+    {
+      "sheet": "mamans",
+      "kind": "objects",
+      "view": "side view, facing RIGHT, standing on its four paws (or feet)",
+      "items": [
+        {
+          "name": "maman_renard",
+          "desc": "a big cuddly MOTHER red fox, same look as the baby fox but grown-up, round and plump, gentle proud smile, big fluffy white-tipped tail",
+          "size": "h92"
+        },
+        {
+          "name": "maman_poule",
+          "desc": "a big plump MOTHER hen, same look as the white hen but much bigger and rounder, big red comb, warm motherly smile",
+          "size": "h84"
+        },
+        {
+          "name": "maman_ecureuil",
+          "desc": "a big cuddly MOTHER red squirrel, same look as the baby squirrel but grown-up and round, huge fluffy tail curled up, sitting up",
+          "size": "h92"
+        },
+        {
+          "name": "maman_marcassin",
+          "desc": "a big round MOTHER wild boar (sow), dark brown, small tusks, round snout, kind eyes, clearly the mother of the striped piglets",
+          "size": "h96"
+        },
+        {
+          "name": "maman_herisson",
+          "desc": "a big round MOTHER hedgehog, same look as the baby hedgehog but much bigger, brown spines, cream face, sweet smile",
+          "size": "h76"
+        }
+      ]
+    }
+  ]
+}

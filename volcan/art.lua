@@ -87,7 +87,9 @@ end
 
 -- How tall each image is drawn (at size 1).
 local HEIGHTS = {
-    kid = 92, renard = 46, poule = 42, ecureuil = 46, marcassin = 38, herisson = 34, ours = 60,
+    kid = 92, renard = 46, poule = 42, ecureuil = 46, marcassin = 38, herisson = 34,
+    -- the big mamas (event "big animal"): about as tall as Rami
+    maman_renard = 92, maman_poule = 84, maman_ecureuil = 92, maman_marcassin = 96, maman_herisson = 76,
     arbre = 125, maison = 80, volcan = 230,
 }
 
@@ -338,7 +340,7 @@ local DRAW = { renard = fox, poule = hen, ecureuil = squirrel, marcassin = pigle
 
 function art.animal(kind, x, y, f, s, withShadow, anim, t)
     s = s or 1
-    if withShadow ~= false then shadow(x, y, 16 * s) end
+    if withShadow ~= false then shadow(x, y, (HEIGHTS[kind] or 46) * 0.35 * s) end
     if animated(kind, anim or "repos", t, x, y, f, HEIGHTS[kind] * s) then return end
     local im = art.image(kind)
     if im then
