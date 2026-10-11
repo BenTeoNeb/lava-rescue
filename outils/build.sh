@@ -22,7 +22,9 @@ done
 
 # 1) the .love: only what the game needs (code + images)
 rm -f "$DIST/sauve-les-animaux.love"
-(cd "$GAME" && zip -q -9 -r "$DIST/sauve-les-animaux.love" ./*.lua images -x "images/_*" "*.DS_Store")
+# (journal.lua is left out: the game log is for us, not for the players;
+#  without it the game simply logs nothing)
+(cd "$GAME" && zip -q -9 -r "$DIST/sauve-les-animaux.love" ./*.lua images -x "images/_*" "*.DS_Store" "./journal.lua")
 echo "OK  dist/sauve-les-animaux.love ($(du -h "$DIST/sauve-les-animaux.love" | cut -f1))"
 
 # 2) Linux: the LÖVE AppImage + the game + a launcher script

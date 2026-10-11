@@ -88,6 +88,7 @@ function mare.tryCatch(k)
     -- one fish at a time in the net (and it still counts in what the kid carries)
     if (k.fish or 0) >= 1 or #k.followers + (k.fish or 0) >= k.look.carry then return "full" end
     f.state, f.kid = "carried", k
+    ctx.log("peche", { joueur = k.player })
     k.fish = (k.fish or 0) + 1
     k.net = 0.5                        -- swing the net
     for _ = 1, 8 do                    -- splash!
@@ -123,6 +124,7 @@ function mare.update(dt)
     -- the lava reaches the pond: it dries up and the fish still in it jump away
     if not p.dried and W.phase == "play" and ctx.lavaX(p.y) > p.x - p.rx * 0.3 then
         p.dried = true
+        ctx.log("mare_seche", { poissons_restants = mare.count("swim") })
         for _ = 1, 25 do ctx.smoke(p.x + rand(-p.rx, p.rx), p.y + rand(-p.ry, p.ry)) end
         for _, f in ipairs(W.fish) do
             if f.state == "swim" then
@@ -161,6 +163,7 @@ function mare.update(dt)
             for _, f in ipairs(W.fish) do
                 if f.state == "carried" and f.kid == k then
                     f.state, f.kid = "jar", nil
+                    ctx.log("bocal", { joueur = k.player })
                     ctx.popup("+1", k.x, k.y - 100, { 0.4, 0.75, 1 }, true)
                 end
             end
