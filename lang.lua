@@ -27,7 +27,7 @@ local TEXTS = {
         mode_volcan = "Mode : Volcan", mode_calme = "Mode : Calme",
     },
     en = {
-        title = "SAVE THE ANIMALS!",
+        title = "LAVA RESCUE!",
         choose = "Choose your character",
         player = "P",
         ready = "Ready!",

@@ -1,7 +1,7 @@
 function love.conf(t)
     t.identity = "sauve-les-animaux"   -- name of the save folder
     t.version = "11.5"                 -- the LÖVE version the game is made for
-    t.window.title = "Sauve les Animaux !"
+    t.window.title = "Lava Rescue!"
     t.window.width = 1280
     t.window.height = 720
     t.window.resizable = true
