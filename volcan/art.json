@@ -10,7 +10,7 @@
   },
   "style": {
     "text": "ART STYLE: warm, cute children's picture-book illustration for 6-year-olds.\nRounded, chunky, simple shapes; big heads; big friendly eyes with a small white\nhighlight; a thick, clean, uniform dark-brown outline (#3B2416) around every\nshape; flat colors with one soft cel-shading tone and a small highlight;\nsoft warm palette (no neon, no harsh black); light coming from the top-left.\nNo photorealism, no 3D render look, no texture noise, no text, no watermark.",
-    "reference": "planches/reference.png"
+    "reference": "planches/reference.jpeg"
   },
   "paths": {
     "sheets": "planches",
@@ -180,12 +180,12 @@
       "items": [
         {
           "name": "volcan_calme",
-          "desc": "a cute friendly cartoon volcano, calm happy face",
+          "desc": "a cute friendly cartoon volcano, grey-brown rounded rocky cone, glowing orange lava in the crater and two lava streams running down its sides, calm happy face",
           "size": "w260"
         },
         {
           "name": "volcan_surpris",
-          "desc": "the same volcano, surprised face, lava bubbling",
+          "desc": "the same volcano, surprised face, lava bubbling in the crater",
           "size": "w260"
         },
         {
@@ -199,7 +199,11 @@
           "size": "w260"
         }
       ],
-      "aspect": 0.8
+      "aspect": 0.8,
+      "view": "side view, the same volcano drawn 4 times, only the face and the top change",
+      "refs": [
+        "planches/volcans.jpg"
+      ]
     },
     {
       "sheet": "mares",

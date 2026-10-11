@@ -39,6 +39,9 @@ VIDEO_MODEL = os.environ.get("ART_VIDEO_MODEL", "veo-3.1-generate-preview")
 VIDEO_RES, VIDEO_SECONDS = "1080p", 8
 
 LONG_SIDE = {"1K": 1024, "2K": 2048, "4K": 4096}
+# What the image models really return: about the same NUMBER of pixels for every
+# ratio (a 16:9 "2K" image is 2752x1536, not 2048 wide), measured on Gemini 3 Pro.
+AREA = {"1K": 1024 * 1024, "2K": 2048 * 2048, "4K": 4096 * 4096}
 RATIOS = {"1:1": 1, "4:3": 4 / 3, "3:2": 1.5, "16:9": 16 / 9, "21:9": 21 / 9, "3:4": 0.75, "2:3": 2 / 3, "9:16": 9 / 16}
 FILL = 0.65          # how much of its cell a drawing fills, roughly (margins, gaps)
 MAGENTA = ("BACKGROUND: perfectly flat, uniform pure magenta (#FF00FF) filling the whole image. "
@@ -125,13 +128,14 @@ def plan_sheet(project, a):
     choice = None
     for size, long_side in LONG_SIDE.items():
         fitting = []
-        for cols in range(n, 0, -1):
-            rows = math.ceil(n / cols)
-            if cols * rows - n >= cols:         # a whole empty row: skip
+        forced = a.get("grid")                # art.json can impose a layout: [cols, rows]
+        for cols in ([forced[0]] if forced else range(n, 0, -1)):
+            rows = forced[1] if forced else math.ceil(n / cols)
+            if not forced and cols * rows - n >= cols:   # a whole empty row: skip
                 continue
             want = cols * aspect / rows
             ratio = min(RATIOS, key=lambda r: abs(math.log(RATIOS[r] / want)))
-            w = long_side if RATIOS[ratio] >= 1 else long_side * RATIOS[ratio]
+            w = math.sqrt(AREA[size] * RATIOS[ratio])
             h = w / RATIOS[ratio]
             # room for one drawing, measured on the side the size is given on
             hh = min(w / cols / aspect, h / rows)
@@ -209,6 +213,9 @@ def build_prompt(project, a):
     kind = a["kind"]
     ref = ("Use the attached image as the strict style reference: same outline thickness, same colors, "
            "same shading, same eye style.\n\n") if project.reference and project.reference.exists() else ""
+    if a.get("refs"):
+        ref += ("The other attached image(s) show the current design of these items: keep the same design, "
+                "colors and details.\n\n")
     if kind == "style":
         return (f"A style reference lineup for a children's video game, in one single horizontal row with "
                 f"big empty gaps between them: {a['desc']}. Wide 16:9 image.\n{project.style}\n{MAGENTA}")
@@ -230,7 +237,7 @@ def build_prompt(project, a):
     view = a.get("view", "side view, facing RIGHT, standing on its base")
     return (f"{ref}A sheet of {len(items)} separate items for a children's video game, {where}, with big "
             f"empty gaps between them, in this reading order (left to right, top to bottom), {view}:\n"
-            f"{listing}\n{relative_sizes(items)}\n{project.style}\n{MAGENTA}")
+            f"{listing}\n{relative_sizes(items)}\n{a.get('note', '')}\n{project.style}\n{MAGENTA}")
 
 
 def video_prompt(project, a):
@@ -265,6 +272,8 @@ def cmd_gen(project, sheet, yes=False):
     if not p["ok"]:
         print(f"Attention : {p['cell']:.0f} px par dessin, {p['need']:.0f} requis pour la 4K.")
     refs = [str(project.reference)] if project.reference and project.reference.exists() and a["kind"] != "style" else []
+    # extra references for this sheet (e.g. the current image when regenerating it)
+    refs += [str(project.root / r) for r in a.get("refs", []) if (project.root / r).exists()]
     out = project.sheets / f"{sheet}.png"
     size = best_size(Budget(project.root), p["size"])
     genimage.generate(str(out), build_prompt(project, a), refs, p["ratio"], size, IMAGE_MODEL,

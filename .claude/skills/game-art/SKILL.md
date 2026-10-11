@@ -43,12 +43,27 @@ Rules for Claude:
   overridden in `art.json` → `budget.prices`. An unknown model is refused until
   it has a price. When 1K and 2K cost the same, 2K is requested (free pixels).
 
+## Quality: what made our API results worse than the user's (avoid it)
+
+- **Regenerating an existing item: attach its current image** (`refs` in
+  art.json) and keep its original, detailed description. A short description
+  ("a cute volcano") lets the model invent a new design.
+- **Never contradict the style block** in a note (e.g. "thin outline" when the
+  style says "thick outline"): the model compromises and both get worse.
+- **Few constraints per image.** Fewer items, ordinary landscape format.
+- **The user picks.** One API call = one try; in the Gemini app the user
+  iterates and keeps the best. Show every result, offer a retry or 2-3
+  variants for important images, and never cut/install without approval. For
+  hero images, the user's own app workflow may simply be better: then use the
+  skill for sizes, cutting, 4K and outlines.
+
 ## The rules that matter (learned the hard way)
 
-1. **One style, fixed first. If the game already has art, the reference is
-   made FROM that art** (a lineup of existing drawings on magenta: a
-   character, an animal, an object, a tree) — never generate a new one then,
-   it would change the style. `gen` refuses to replace an existing reference.
+1. **One style, fixed first — use the user's own reference image.** If the
+   user already made the art (e.g. in the Gemini app), ASK for the style
+   reference image they used and put it in `style.reference`: a real
+   generated image is a far better model than a collage of cut-outs. Never
+   generate a new one then. `gen` refuses to replace an existing reference.
    Otherwise: Write the style block once (art.json
    `style.text`), generate a **style reference** lineup (kind `style`), let the
    user approve it, save it as `style.reference`. Every later generation
@@ -130,6 +145,14 @@ after when replacing images in a game.
 ```
 - `kind`: `style`, `objects` (decor, props, huts, trees, items: any sheet of
   separate drawings), `tile`, `character`.
+- `grid` (optional): force a layout, e.g. `[2, 2]` (avoid very wide 4K
+  sheets: they tend to come back with doubled, ghosted drawings).
+- `note` (optional): an extra sentence for this sheet's prompt (never one
+  that contradicts the style block).
+- `refs` (optional): extra reference images for this sheet, e.g. the current
+  sheet when regenerating it, so the design is kept.
+- `aspect` (optional): width / height of one drawing (default 1.3 for things
+  seen from the side, use ~0.8 for trees, volcanoes, jars).
 - `size`: the biggest on-screen size of the item (if it is shown at several
   sizes, the biggest).
 - `ranges` (optional): video frames of each action (24 per second), when the
