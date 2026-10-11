@@ -2,6 +2,8 @@
 
 **Game made with children for children.**
 
+![Sauve les Animaux ! — two kids lead the forest animals to the pens on the hill while the lava comes down from the volcano](docs/screenshot.jpg)
+
 The volcano wakes up: save the forest animals and the pond fish before the lava
 reaches them. A small 2D game for young children (from about 5 years old),
 played with **game controllers** (8BitDo, Xbox, PlayStation... or the
