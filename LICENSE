@@ -3,11 +3,12 @@ Copyright (c) 2026 Benjamin Farcy
 
 This repository has two parts, under two different licenses:
 
-  1. the CODE is source-available under the PolyForm Noncommercial License
-     1.0.0 (below): free to use, study, modify and share for noncommercial
-     purposes only;
-  2. the ASSETS (art, animations, characters, titles) are all rights
-     reserved: no reuse at all.
+  1. the ASSETS (art, animations, characters, titles) are all rights
+     reserved: anyone may download and play the games, but the assets may
+     not be reused in any other project;
+  2. the CODE is under the PolyForm Noncommercial License 1.0.0 (below):
+     anyone may reuse, modify and share it, in any project, for
+     noncommercial purposes.
 
 Selling the games or using them commercially (Steam, stores, paid versions)
 is reserved to the copyright holder.
@@ -29,9 +30,9 @@ characters. The license of part 2 does NOT apply to them.
 The first names, likenesses and personal identity of the children who appear
 in the games (Rami, Zina, Lila) may not be used for any purpose.
 
-Friends and family: you may play the ready-to-play versions of the games (the
-files made by volcan/outils/build.sh) and share them with people you know
-personally, privately, free of charge, unchanged and with this file.
+What you MAY do: download this repository (or a ready-to-play version made by
+volcan/outils/build.sh), play the games, and share them free of charge,
+unchanged and with this file. The assets may only be used inside these games.
 
 ===============================================================================
 2. CODE — PolyForm Noncommercial License 1.0.0
