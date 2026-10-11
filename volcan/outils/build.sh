@@ -3,6 +3,8 @@
 #   dist/sauve-les-animaux.love        the game itself (needs LÖVE 11.5)
 #   dist/SauveLesAnimaux-linux.tar.gz  Linux / Bazzite / Steam Deck, nothing to install
 #   dist/SauveLesAnimaux-windows.zip   Windows, double-click SauveLesAnimaux.exe
+#   dist/SauveLesAnimaux-mac.zip       Mac, double-click the app (made from the LÖVE
+#                                      app installed in /Applications, if there is one)
 #
 # Run from anywhere:  sh volcan/outils/build.sh
 # The official LÖVE 11.5 builds are downloaded once into .cache/love/.
@@ -52,3 +54,21 @@ cat "$DIST/love-11.5-win64/love.exe" "$DIST/sauve-les-animaux.love" > "$W/$NAME.
 rm -rf "$DIST/love-11.5-win64"
 (cd "$DIST" && rm -f "$NAME-windows.zip" && zip -q -r "$NAME-windows.zip" "$NAME-windows")
 echo "OK  dist/$NAME-windows.zip ($(du -h "$DIST/$NAME-windows.zip" | cut -f1))"
+
+# 4) Mac: a copy of the LÖVE app with the game inside, renamed
+if [ -d /Applications/love.app ]; then
+    M="$DIST/$NAME-mac"
+    APP="$M/Sauve les Animaux.app"
+    rm -rf "$M" && mkdir -p "$M"
+    cp -R /Applications/love.app "$APP"
+    cp "$DIST/sauve-les-animaux.love" "$APP/Contents/Resources/game.love"
+    PL="$APP/Contents/Info.plist"
+    /usr/libexec/PlistBuddy -c "Set :CFBundleName Sauve les Animaux" "$PL"
+    /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier fr.famille.sauve-les-animaux" "$PL"
+    /usr/libexec/PlistBuddy -c "Delete :UTExportedTypeDeclarations" "$PL" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Delete :CFBundleDocumentTypes" "$PL" 2>/dev/null || true
+    xattr -cr "$APP" 2>/dev/null || true
+    codesign --force --deep --sign - "$APP" 2>/dev/null || true      # ad-hoc signature
+    (cd "$M" && rm -f "../$NAME-mac.zip" && ditto -c -k --sequesterRsrc --keepParent "Sauve les Animaux.app" "../$NAME-mac.zip")
+    echo "OK  dist/$NAME-mac.zip ($(du -h "$DIST/$NAME-mac.zip" | cut -f1))"
+fi
