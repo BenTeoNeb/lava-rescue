@@ -17,6 +17,8 @@ local BIG_REACH = 80            -- how close a kid must be to take hold of it
 local BIG_LEASH = 70            -- the two kids can't get further than this from it
 local BIG_LET_GO = 120          -- a kid alone holding it lets go if further than this
 
+events.GOLD_VALUE, events.BIG_VALUE = GOLD_VALUE, BIG_VALUE
+
 function events.setup(world, helpers)
     W, ctx = world, helpers
 end
@@ -31,6 +33,9 @@ function events.start(players)
         W.big = { state = "waiting", at = BIG_AT, holders = {}, facing = 1, walk = 0, wobble = 0,
             family = family }
         W.total = W.total + BIG_VALUE
+        for _, a in ipairs(W.animals) do                -- reunited babies count double
+            if a.kind == family then W.total = W.total + 1 end
+        end
     end
 end
 
@@ -40,13 +45,24 @@ function events.bonus()
     for _, a in ipairs(W.animals) do
         if a.golden and a.state == "home" then n = n + GOLD_VALUE - 1 end
     end
-    if W.big and W.big.state == "home" then n = n + BIG_VALUE end
+    if W.big and W.big.state == "home" then
+        n = n + BIG_VALUE
+        for _, a in ipairs(W.animals) do
+            if events.withMama(a, a.pen) then n = n + 1 end
+        end
+    end
     return n
+end
+
+-- Is this animal a baby of the mama, in her pen? (it counts double)
+function events.withMama(a, pen)
+    local b = W.big
+    return b ~= nil and b.state == "home" and a.state == "home" and a.kind == b.family and pen == b.pen
 end
 
 -- Is the big animal still to be saved? (the game can't end before)
 function events.left()
-    return (W.big and W.big.state ~= "home") and 1 or 0
+    return (W.big and W.big.state ~= "home" and W.big.state ~= "lost") and 1 or 0
 end
 
 local function sparkle(x, y, n)
@@ -70,6 +86,7 @@ local function revealGold()
     end
     local a = choices[love.math.random(#choices)]
     a.golden, a.value = true, GOLD_VALUE
+    ctx.log("dore", { animal = a.kind })
     sparkle(a.x, a.y - 20, 30)
     ctx.sfx.play("sparkle")
 end
@@ -118,6 +135,7 @@ local function spawnBig()
         if not ctx.inPond(b.x, b.y, 60) then break end
     end
     b.state, b.homeX, b.homeY = "free", b.x, b.y
+    ctx.log("maman", { famille = b.family })
     for _ = 1, 20 do ctx.smoke(b.x + ctx.rand(-40, 40), b.y - ctx.rand(0, 30)) end
     ctx.sfx.play("rumble")
 end
@@ -195,7 +213,19 @@ local function updateBig(dt)
             end
             releaseAll()
             b.state, b.pen = "home", pen
-            ctx.popup("+" .. BIG_VALUE, b.x, b.y - 80, { 1, 0.4, 0.5 }, true)
+            ctx.log("maman_sauvee", { famille = b.family, enclos = pen })
+            -- her babies already in this pen count double now
+            local babies = 0
+            for _, a in ipairs(W.animals) do
+                if a.state == "home" and a.pen == pen and a.kind == b.family then
+                    babies = babies + 1
+                    for _ = 1, 4 do
+                        table.insert(W.particles, { heart = true, x = a.x + ctx.rand(-15, 15), y = a.y - 30,
+                            vx = ctx.rand(-20, 20), vy = ctx.rand(-80, -40), r = ctx.rand(0.6, 1), life = 1.4, max = 1.4 })
+                    end
+                end
+            end
+            ctx.popup("+" .. (BIG_VALUE + babies), b.x, b.y - 80, { 1, 0.4, 0.5 }, true)
             sparkle(b.x, b.y - 30, 25)
             ctx.sfx.play("big")
             W.duck = 2
@@ -204,12 +234,16 @@ local function updateBig(dt)
         if b.state ~= "home" and W.phase == "play" and ctx.inLava(b, 10) then
             releaseAll()
             b.state, b.vy = "flee", b.y < W.H / 2 and -200 or 200
+            b.burns = (b.burns or 0) + 1
             ctx.sfx.play("burn")
         end
     elseif b.state == "flee" then
         b.x, b.y = b.x + 70 * dt, b.y + b.vy * dt
         b.walk, b.moving = b.walk + dt * 16, 200
-        if b.y < -80 or b.y > W.H + 80 then b.state, b.back = "gone", 10 end
+        if b.y < -80 or b.y > W.H + 80 then
+            -- one second chance, like the other animals
+            if (b.burns or 0) >= 2 then b.state = "lost" else b.state, b.back = "gone", 10 end
+        end
     elseif b.state == "gone" then
         b.back = b.back - dt
         if b.back <= 0 and W.phase == "play" then spawnBig() end
@@ -237,7 +271,7 @@ end
 -- The big animal (to draw with everything sorted by height).
 function events.drawBig()
     local b = W.big
-    if not b or b.state == "waiting" or b.state == "gone" then return end
+    if not b or b.state == "waiting" or b.state == "gone" or b.state == "lost" then return end
     local wob = b.wobble > 0 and math.sin(W.time * 40) * 3 or 0
     local hop = b.moving and math.abs(math.sin(b.walk)) * 4 or 0
     -- the mama's drawing, or her baby drawn bigger if there is no drawing

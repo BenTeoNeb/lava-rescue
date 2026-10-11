@@ -6,6 +6,12 @@ local sfx = require("sfx")
 local art = require("art")
 local world = require("world")
 local musique = require("musique")
+-- the game log (journal.lua) is not shipped (see build.sh): without it, nothing is logged
+local hasJournal, journal = pcall(require, "journal")
+if not hasJournal then
+    journal = setmetatable({}, { __index = function() return function() end end })
+end
+journal.enabled = true     -- real games are logged (see journal.lua)
 local lang = require("lang")
 local T = lang.t
 
@@ -114,6 +120,7 @@ local function menuChoose()
     if item == "resume" then
         menu = nil
     elseif item == "to_title" then
+        if world.phase ~= "results" then world.logEnd("accueil") end
         menu = nil
         resetSelect()
         state = "select"
@@ -126,6 +133,7 @@ local function menuChoose()
     elseif item == "language" then
         lang.toggle()
     elseif item == "quit" then
+        if state == "play" and world.phase ~= "results" then world.logEnd("quitte") end
         love.event.quit()
     end
 end
@@ -376,6 +384,10 @@ end
 
 function love.joystickremoved(joystick)
     input.joystickremoved(joystick)
+end
+
+function love.quit()
+    if state == "play" and world.phase ~= "results" then world.logEnd("quitte") end
 end
 
 function love.focus(focused)
