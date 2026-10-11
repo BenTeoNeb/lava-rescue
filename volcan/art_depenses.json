@@ -26,5 +26,19 @@
   "model": "gemini-3-pro-image",
   "usd": 0.24,
   "file": "/Users/bfarcy/workdir/games/volcan/planches/volcans.png"
+ },
+ {
+  "date": "2026-10-11 15:38",
+  "what": "volcans (essai)",
+  "model": "gemini-3-pro-image",
+  "usd": 0.134,
+  "file": "/Users/bfarcy/workdir/games/volcan/planches/volcans_essai.png"
+ },
+ {
+  "date": "2026-10-11 15:42",
+  "what": "volcans (haute résolution)",
+  "model": "gemini-3-pro-image",
+  "usd": 0.24,
+  "file": "/Users/bfarcy/workdir/games/volcan/planches/volcans.png"
  }
 ]

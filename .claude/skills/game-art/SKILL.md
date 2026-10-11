@@ -106,6 +106,9 @@ Rules for Claude:
 
 ```
 art.py plan                     # check sizes and sheets
+art.py essai SHEET              # a 1K trial first: show it, the user validates the style
+art.py upscale SHEET            # then the SAME picture at full resolution (a new "gen"
+                                # would be a new random draw, not the approved one)
 art.py gen style                # 1. the style reference -> user approves -> art.json style.reference
 art.py build animals            # 2. each sheet: generate, cut, bake
 art.py gen zina                 # 3. a character: still image first...

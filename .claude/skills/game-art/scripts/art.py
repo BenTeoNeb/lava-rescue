@@ -3,6 +3,8 @@
 
     python3 art.py plan                  what to generate, at what size (no API call)
     python3 art.py prompt SHEET          print the prompt (to use by hand in Gemini)
+    python3 art.py essai SHEET           a cheap low-resolution trial (planches/SHEET_essai.png)
+    python3 art.py upscale SHEET         the approved trial redone at full resolution (same design)
     python3 art.py gen SHEET             generate the sheet image (image API)
     python3 art.py animate SHEET         generate a character's video (video API)
     python3 art.py cut SHEET             cut the sheet / video into full-resolution pieces
@@ -262,7 +264,7 @@ def cmd_prompt(project, sheet):
 
 # ---------------------------------------------------------------- API calls
 
-def cmd_gen(project, sheet, yes=False):
+def cmd_gen(project, sheet, yes=False, trial=False):
     import genimage
     a = project.asset(sheet)
     if a["kind"] == "style" and project.reference and project.reference.exists() and not yes:
@@ -274,11 +276,31 @@ def cmd_gen(project, sheet, yes=False):
     refs = [str(project.reference)] if project.reference and project.reference.exists() and a["kind"] != "style" else []
     # extra references for this sheet (e.g. the current image when regenerating it)
     refs += [str(project.root / r) for r in a.get("refs", []) if (project.root / r).exists()]
-    out = project.sheets / f"{sheet}.png"
-    size = best_size(Budget(project.root), p["size"])
+    out = project.sheets / (f"{sheet}_essai.png" if trial else f"{sheet}.png")
+    # trial: smallest size, to check the prompt and the style before paying for
+    # the full resolution (then "upscale" keeps the approved design)
+    size = "1K" if trial else best_size(Budget(project.root), p["size"])
     genimage.generate(str(out), build_prompt(project, a), refs, p["ratio"], size, IMAGE_MODEL,
-                      yes=yes, what=f"{sheet} (planche)", root=project.root)
+                      yes=yes, what=f"{sheet} ({'essai' if trial else 'planche'})", root=project.root)
     print("Vérifiez l'image avant de continuer :", out)
+
+
+def cmd_upscale(project, sheet, yes=False):
+    """The approved trial image, redone at the full resolution: same picture,
+    same design (the trial is sent as the image to reproduce)."""
+    import genimage
+    a = project.asset(sheet)
+    p = plan_sheet(project, a)
+    trial = project.sheets / f"{sheet}_essai.png"
+    if not trial.exists():
+        sys.exit(f"Pas d'essai validé ({trial}) : lancez d'abord « art.py essai {sheet} ».")
+    prompt = ("Reproduce the attached image exactly, in high resolution: the same drawings, same layout, "
+              "same colors, same faces, same details, same outline. Do not change or add anything. "
+              "Keep the perfectly flat magenta (#FF00FF) background.")
+    out = project.sheets / f"{sheet}.png"
+    genimage.generate(str(out), prompt, [str(trial)], p["ratio"], p["size"], IMAGE_MODEL,
+                      yes=yes, what=f"{sheet} (haute résolution)", root=project.root)
+    print("Comparez avec l'essai avant de découper :", trial, out)
 
 
 def cmd_animate(project, sheet, yes=False):
@@ -403,6 +425,10 @@ def main():
         cmd_prompt(project, rest[0])
     elif cmd == "gen":
         cmd_gen(project, rest[0], yes=bool(opts.get("oui")))
+    elif cmd == "essai":
+        cmd_gen(project, rest[0], yes=bool(opts.get("oui")), trial=True)
+    elif cmd == "upscale":
+        cmd_upscale(project, rest[0], yes=bool(opts.get("oui")))
     elif cmd == "animate":
         cmd_animate(project, rest[0], yes=bool(opts.get("oui")))
     elif cmd == "budget":
