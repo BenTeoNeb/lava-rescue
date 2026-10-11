@@ -1,32 +1,127 @@
-Copyright (c) 2026 Benjamin Farcy. All rights reserved.
+"Sauve les Animaux !" and "Rugby de la Jungle"
+Copyright (c) 2026 Benjamin Farcy
 
-"Sauve les Animaux !" (volcan/) and "Rugby de la Jungle" (mygame/) — the
-games, their code, their images, animations, sounds and music, the tools in
-volcan/outils/ and .claude/skills/ — are the property of the copyright holder.
+This repository has two parts, under two different licenses:
 
-PERMISSION GIVEN TO FRIENDS AND FAMILY
-You may download, install and play the ready-to-play versions of the games
-(the files made by volcan/outils/build.sh) for your own personal, private,
-non-commercial use, and share them with people you know personally, free of
-charge, unchanged and with this notice.
+  1. the CODE is source-available under the PolyForm Noncommercial License
+     1.0.0 (below): free to use, study, modify and share for noncommercial
+     purposes only;
+  2. the ASSETS (art, animations, characters, titles) are all rights
+     reserved: no reuse at all.
 
-EVERYTHING ELSE NEEDS WRITTEN PERMISSION
-Without prior written permission from the copyright holder, you may NOT:
-  - sell, rent or charge for the games, or use them in any commercial way;
-  - publish them or make them publicly available (stores, Steam, itch.io,
-    websites, public file sharing...);
-  - copy, modify, adapt or reuse the code, the images, the animations, the
-    characters, the sounds or the music, in whole or in part, in other works;
-  - use the characters, names or likenesses of the children appearing in the
-    games (Rami, Zina, Lila) for any purpose.
-Reading this source code does not give you any right to use it.
+Selling the games or using them commercially (Steam, stores, paid versions)
+is reserved to the copyright holder.
 
-NO WARRANTY
-The games are provided "as is", without warranty of any kind. In no event
-shall the copyright holder be liable for any claim, damages or other
-liability arising from their use.
+===============================================================================
+1. ASSETS — All rights reserved
+===============================================================================
 
-THIRD-PARTY COMPONENTS (not covered by this notice)
+Covers: everything in volcan/images/, volcan/planches/ and volcan/videos/
+(illustrations, sprites, animations, sheets, videos), and the games' titles,
+characters and world ("Sauve les Animaux !", "Rugby de la Jungle", Rami, Zina,
+Lila and the animal characters).
+
+Copyright (c) 2026 Benjamin Farcy. All rights reserved. Without prior written
+permission you may not copy, modify, publish, distribute, sell or reuse these
+assets, in whole or in part, in any other work, nor use the titles or the
+characters. The license of part 2 does NOT apply to them.
+
+The first names, likenesses and personal identity of the children who appear
+in the games (Rami, Zina, Lila) may not be used for any purpose.
+
+Friends and family: you may play the ready-to-play versions of the games (the
+files made by volcan/outils/build.sh) and share them with people you know
+personally, privately, free of charge, unchanged and with this file.
+
+===============================================================================
+2. CODE — PolyForm Noncommercial License 1.0.0
+===============================================================================
+
+Covers: every source and tool file of this repository — the *.lua files of
+volcan/ and mygame/ (including the procedural sound and music code), the
+tools in volcan/outils/, the skill in .claude/skills/, art.json and the
+documentation (README.md, GEMINI.md, prompts).
+
+Required Notice: Copyright (c) 2026 Benjamin Farcy (https://github.com/BenTeoNeb)
+
+# PolyForm Noncommercial License 1.0.0
+
+<https://polyformproject.org/licenses/noncommercial/1.0.0>
+
+## Acceptance
+
+In order to get any license under these terms, you must agree to them as both strict obligations and conditions to all your licenses.
+
+## Copyright License
+
+The licensor grants you a copyright license for the software to do everything you might do with the software that would otherwise infringe the licensor's copyright in it for any permitted purpose.  However, you may only distribute the software according to [Distribution License](#distribution-license) and make changes or new works based on the software according to [Changes and New Works License](#changes-and-new-works-license).
+
+## Distribution License
+
+The licensor grants you an additional copyright license to distribute copies of the software.  Your license to distribute covers distributing the software with changes and new works permitted by [Changes and New Works License](#changes-and-new-works-license).
+
+## Notices
+
+You must ensure that anyone who gets a copy of any part of the software from you also gets a copy of these terms or the URL for them above, as well as copies of any plain-text lines beginning with `Required Notice:` that the licensor provided with the software.  For example:
+
+> Required Notice: Copyright Yoyodyne, Inc. (http://example.com)
+
+## Changes and New Works License
+
+The licensor grants you an additional copyright license to make changes and new works based on the software for any permitted purpose.
+
+## Patent License
+
+The licensor grants you a patent license for the software that covers patent claims the licensor can license, or becomes able to license, that you would infringe by using the software.
+
+## Noncommercial Purposes
+
+Any noncommercial purpose is a permitted purpose.
+
+## Personal Uses
+
+Personal use for research, experiment, and testing for the benefit of public knowledge, personal study, private entertainment, hobby projects, amateur pursuits, or religious observance, without any anticipated commercial application, is use for a permitted purpose.
+
+## Noncommercial Organizations
+
+Use by any charitable organization, educational institution, public research organization, public safety or health organization, environmental protection organization, or government institution is use for a permitted purpose regardless of the source of funding or obligations resulting from the funding.
+
+## Fair Use
+
+You may have "fair use" rights for the software under the law. These terms do not limit them.
+
+## No Other Rights
+
+These terms do not allow you to sublicense or transfer any of your licenses to anyone else, or prevent the licensor from granting licenses to anyone else.  These terms do not imply any other licenses.
+
+## Patent Defense
+
+If you make any written claim that the software infringes or contributes to infringement of any patent, your patent license for the software granted under these terms ends immediately. If your company makes such a claim, your patent license ends immediately for work on behalf of your company.
+
+## Violations
+
+The first time you are notified in writing that you have violated any of these terms, or done anything with the software not covered by your licenses, your licenses can nonetheless continue if you come into full compliance with these terms, and take practical steps to correct past violations, within 32 days of receiving notice.  Otherwise, all your licenses end immediately.
+
+## No Liability
+
+***As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will not be liable to you for any damages arising out of these terms or the use or nature of the software, under any kind of legal claim.***
+
+## Definitions
+
+The **licensor** is the individual or entity offering these terms, and the **software** is the software the licensor makes available under these terms.
+
+**You** refers to the individual or entity agreeing to these terms.
+
+**Your company** is any legal entity, sole proprietorship, or other kind of organization that you work for, plus all organizations that have control over, are under the control of, or are under common control with that organization.  **Control** means ownership of substantially all the assets of an entity, or the power to direct its management and policies by vote, contract, or otherwise.  Control can be direct or indirect.
+
+**Your licenses** are all the licenses granted to you for the software under these terms.
+
+**Use** means anything you do with the software requiring one of your licenses.
+
+===============================================================================
+Third-party components
+===============================================================================
+
 The ready-to-play versions include the LÖVE game framework and its libraries
-(https://love2d.org, zlib license and the licenses listed in its license.txt),
-which keep their own licenses; the Windows version ships that license.txt.
+(https://love2d.org), which keep their own licenses (zlib and others, see
+LÖVE's license.txt).

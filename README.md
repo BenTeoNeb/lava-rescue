@@ -91,6 +91,13 @@ Logged games (when playing from this folder) are in
 
 ## License
 
-**All rights reserved** — see [LICENSE](LICENSE). Friends and family may play
-and share the ready-to-play versions privately and for free; anything else
-(selling, publishing, reusing the code, art or characters) needs permission.
+Two parts — see [LICENSE](LICENSE):
+
+- **Code: [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)**
+  — the `.lua` files, the tools, the `game-art` skill and the docs: free to
+  use, study, modify and share for **noncommercial** purposes.
+- **Assets: all rights reserved** — images, animations, sheets, videos, the
+  titles and the characters: **no reuse**.
+- Selling the games (Steam, stores...) is reserved to the author. Friends and
+  family may play and share the ready-to-play versions privately. The
+  children's names and likenesses may not be used.
