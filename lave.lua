@@ -72,6 +72,7 @@ vec4 effect(vec4 color, Image tex, vec2 uv, vec2 sc) {
 
 local STRIP = 4
 local mesh
+local verts = {}
 
 function lave.load()
     shader = g.newShader(SHADER)
@@ -79,6 +80,7 @@ function lave.load()
     local rows = math.ceil(720 / STRIP) + 3
     mesh = g.newMesh({ { "VertexPosition", "float", 2 }, { "VertexFront", "float", 1 } },
         rows * 2, "strip", "stream")
+    for i = 1, rows * 2 do verts[i] = { 0, 0, 0 } end
     local d = love.image.newImageData(64, 1)
     for i = 0, 63 do d:setPixel(i, 0, 1, 1, 1, (1 - i / 63) ^ 2) end
     glow = g.newImage(d)
@@ -97,12 +99,13 @@ function lave.draw(lavaX, t, H)
     end
 
     -- the lava itself: one smooth shape, colored by the shader
-    local verts = {}
+    -- (the vertex tables are made once and reused: no garbage every frame)
     for i = 0, mesh:getVertexCount() / 2 - 1 do
         local y = (i - 1) * STRIP
         local x = math.max(0, lavaX(y))
-        table.insert(verts, { 0, y, x })
-        table.insert(verts, { x, y, x })
+        local a, b = verts[2 * i + 1], verts[2 * i + 2]
+        a[1], a[2], a[3] = 0, y, x
+        b[1], b[2], b[3] = x, y, x
     end
     mesh:setVertices(verts)
     shader:send("time", t)

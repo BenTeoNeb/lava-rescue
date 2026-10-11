@@ -20,6 +20,7 @@ end
 local W, H = 1280, 720
 local g = love.graphics
 local state = "select"
+local calmMode = false    -- calm mode: the volcano sleeps (chosen in the menu)
 local fonts = {}
 
 -- Character select: each player picks Rami, Zina or Lila.
@@ -51,7 +52,7 @@ local function startIfReady()
     for p = 1, 2 do
         if pick[p].joined then table.insert(chosen, { player = p, kid = pick[p].choice }) end
     end
-    world.start(chosen)
+    world.start(chosen, calmMode)
     state = "play"
 end
 
@@ -67,7 +68,7 @@ local function selectAction(p, action)
         moveChoice(p, -1)
     elseif action == "right" and not me.ready then
         moveChoice(p, 1)
-    elseif action == "grab" or action == "start" then
+    elseif action == "grab" then
         me.ready = true
         sfx.play("ready")
         startIfReady()
@@ -77,15 +78,103 @@ local function selectAction(p, action)
     end
 end
 
+-- The menu (Start): pauses the game. Up/down to move, bottom button to choose,
+-- Start or the right button to close it.
+local menu = nil          -- { sel = n } while the menu is open
+local drawMenu
+local menuStickOut = {}
+
+local function menuItems()
+    local items = { "resume" }
+    if state == "play" then table.insert(items, "to_title") end
+    if state == "select" then table.insert(items, "mode") end
+    table.insert(items, "fullscreen")
+    table.insert(items, "sound")
+    table.insert(items, "language")
+    table.insert(items, "quit")
+    return items
+end
+
+local function menuLabel(item)
+    if item == "mode" then return T(calmMode and "mode_calme" or "mode_volcan") end
+    if item == "fullscreen" then return T(love.window.getFullscreen() and "fullscreen_on" or "fullscreen_off") end
+    if item == "sound" then return T(soundOn and "sound_on" or "sound_off") end
+    if item == "language" then return T("language_item") end
+    return T(item)
+end
+
+local function openMenu()
+    menu = { sel = 1 }
+    sfx.play("select")
+end
+
+local function menuChoose()
+    local item = menuItems()[menu.sel]
+    sfx.play("select")
+    if item == "resume" then
+        menu = nil
+    elseif item == "to_title" then
+        menu = nil
+        resetSelect()
+        state = "select"
+    elseif item == "mode" then
+        calmMode = not calmMode
+    elseif item == "fullscreen" then
+        love.window.setFullscreen(not love.window.getFullscreen(), "desktop")
+    elseif item == "sound" then
+        setSound(not soundOn)
+    elseif item == "language" then
+        lang.toggle()
+    elseif item == "quit" then
+        love.event.quit()
+    end
+end
+
+local function menuAction(action)
+    local n = #menuItems()
+    if action == "up" then
+        menu.sel = (menu.sel - 2) % n + 1
+        sfx.play("select")
+    elseif action == "down" then
+        menu.sel = menu.sel % n + 1
+        sfx.play("select")
+    elseif action == "grab" then
+        menuChoose()
+    elseif action == "start" or action == "drop" then
+        menu = nil
+    end
+end
+
+local makeFonts
+
+-- Make the fonts for the real size of the screen: the 1280x720 picture is
+-- scaled up (x3 in 4K), and on Retina screens there are 2 pixels per point.
+local fontScale
+makeFonts = function()
+    local w, h = g.getDimensions()
+    local s = math.min(w / W, h / H) * g.getDPIScale()
+    if fontScale and math.abs(s - fontScale) < 0.01 then return end
+    fontScale = s
+    art.fontScale = s
+    art.resetFonts()
+    fonts.title = art.font(64)
+    fonts.big = art.font(36)
+    fonts.mid = art.font(24)
+    fonts.small = art.font(20)
+    world.makeFonts()
+end
+
+function love.resize()
+    makeFonts()
+end
+
 function love.load()
     sfx.load()
     world.load()
     musique.load()
+    art.preload()
     setSound(false)
-    fonts.title = g.newFont(64)
-    fonts.big = g.newFont(36)
-    fonts.mid = g.newFont(24)
-    fonts.small = g.newFont(18)
+    makeFonts()
     resetSelect()
     for _, js in ipairs(love.joystick.getJoysticks()) do
         input.joystickadded(js)
@@ -94,6 +183,15 @@ end
 
 function love.update(dt)
     dt = math.min(dt, 1 / 30)
+    if menu then
+        for p = 1, 2 do
+            local y = input.stickY(p)
+            local out = math.abs(y) > 0.6
+            if out and not menuStickOut[p] then menuAction(y > 0 and "down" or "up") end
+            menuStickOut[p] = out
+        end
+        return
+    end
     if state == "select" then
         -- let the stick move the choice too, one step per push
         for p = 1, 2 do
@@ -119,8 +217,9 @@ end
 local function outlined(text, font, x, y, w, color)
     g.setFont(font)
     g.setColor(0.15, 0.08, 0.05, 0.85)
-    for ox = -2, 2, 2 do
-        for oy = -2, 2, 2 do g.printf(text, x + ox, y + oy, w, "center") end
+    for i = 0, 11 do   -- a round outline, smooth at any resolution
+        local a = i / 12 * math.pi * 2
+        g.printf(text, x + math.cos(a) * 2.2, y + math.sin(a) * 2.2, w, "center")
     end
     g.setColor(color or { 1, 1, 1 })
     g.printf(text, x, y, w, "center")
@@ -184,37 +283,81 @@ local function drawSelect()
         end
     end
 
-    -- sound on/off, top left (Select or M)
+    -- sound on/off (View / Select button) and language (shoulder buttons), top left
     g.setColor(0.2, 0.12, 0.08, 0.6)
-    g.rectangle("fill", 14, 14, 240, 34, 12)
-    outlined(T(soundOn and "sound_on" or "sound_off") .. "  (Select)", fonts.small, 14, 20, 240,
+    g.rectangle("fill", 14, 12, 250, 38, 12)
+    g.rectangle("fill", 14, 56, 250, 38, 12)
+    art.glyph("view", 38, 31)
+    outlined(T(soundOn and "sound_on" or "sound_off"), fonts.small, 56, 20, 200,
         soundOn and { 0.6, 1, 0.6 } or { 0.85, 0.85, 0.85 })
-    -- language, just below (L1 / R1 or L)
+    g.setFont(fonts.small)
+    art.glyph("lr", 56, 75, 0.75)
+    -- the game mode (changed in the menu): a little volcano, awake or asleep
     g.setColor(0.2, 0.12, 0.08, 0.6)
-    g.rectangle("fill", 14, 54, 240, 34, 12)
-    outlined(T("language") .. "  (L1 / R1)", fonts.small, 14, 60, 240, { 1, 0.95, 0.6 })
-    outlined(T("how"), fonts.small, 0, 616, W)
+    g.rectangle("fill", 14, 100, 250, 38, 12)
+    art.volcano(42, 134, 0, 0, calmMode and "calme" or "fume", 40)
+    outlined(T(calmMode and "mode_calme" or "mode_volcan"), fonts.small, 82, 108, 180,
+        calmMode and { 0.6, 0.85, 1 } or { 1, 0.6, 0.3 })
+    outlined(T("language"), fonts.small, 82, 64, 180, { 1, 0.95, 0.6 })
+    -- how to play, with the buttons as icons
+    art.hint({ "@dpad", T("choose_short"), "   ", "@a", T("go"), "   ", "@menu", T("menu_hint") },
+        W / 2, 624, fonts.small)
     if not pick[2].joined then
-        outlined(T("join"), fonts.small, 0, 642, W, PLAYER_COLORS[2])
+        outlined(T("join"), fonts.small, 0, 648, W, PLAYER_COLORS[2])
+    end
+end
+
+drawMenu = function()
+    g.setColor(0, 0, 0, 0.55)
+    g.rectangle("fill", 0, 0, W, H)
+    local items = menuItems()
+    local ph = 120 + #items * 62
+    local py = (H - ph) / 2
+    g.setColor(0.98, 0.94, 0.82)
+    g.rectangle("fill", 390, py, 500, ph, 28)
+    g.setColor(0.6, 0.4, 0.2)
+    g.setLineWidth(6)
+    g.rectangle("line", 390, py, 500, ph, 28)
+    outlined(T("menu"), fonts.big, 390, py + 22, 500, { 1, 0.8, 0.2 })
+    for i, item in ipairs(items) do
+        local y = py + 92 + (i - 1) * 62
+        if i == menu.sel then
+            g.setColor(1, 0.8, 0.25)
+            g.rectangle("fill", 420, y - 6, 440, 50, 16)
+            g.setColor(0.6, 0.4, 0.2)
+            g.setLineWidth(3)
+            g.rectangle("line", 420, y - 6, 440, 50, 16)
+        end
+        g.setFont(fonts.mid)
+        g.setColor(0.35, 0.22, 0.12)
+        g.printf(menuLabel(item), 390, y + 4, 500, "center")
     end
 end
 
 function love.draw()
+    makeFonts()   -- only rebuilt if the screen size changed
     -- Draw at 1280x720 and scale to fit the window.
     local w, h = g.getDimensions()
     local s = math.min(w / W, h / H)
-    g.clear(0, 0, 0)
+    g.clear(0.1, 0.22, 0.1)   -- the bars around the picture (e.g. on the 16:10 Steam Deck)
     g.translate((w - W * s) / 2, (h - H * s) / 2)
     g.scale(s)
     g.setScissor((w - W * s) / 2, (h - H * s) / 2, W * s, H * s)
     if state == "select" then drawSelect() else world.draw() end
+    if menu then drawMenu() end
     g.setScissor()
 end
 
 local function onAction(p, action)
     if action == "back" then setSound(not soundOn) return end   -- Select: sound on/off
+    if menu then menuAction(action) return end
     if action == "lang" then                                     -- L1/R1: language
         if state == "select" then lang.toggle() end
+        return
+    end
+    -- Start opens the menu (except on the end screen, where it plays again)
+    if action == "start" and not (state == "play" and world.phase == "results") then
+        openMenu()
         return
     end
     if state == "select" then selectAction(p, action) else world.action(p, action) end
@@ -226,6 +369,12 @@ end
 
 function love.joystickremoved(joystick)
     input.joystickremoved(joystick)
+end
+
+function love.focus(focused)
+    if not focused and state == "play" and world.phase == "play" and not menu then
+        menu = { sel = 1 }
+    end
 end
 
 function love.gamepadpressed(joystick, button)

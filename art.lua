@@ -17,10 +17,21 @@ function art.image(name)
     return images[name]
 end
 
+-- Load every image and animation now (at launch), so the game never stops to
+-- load one in the middle of a game (that made it stutter).
+function art.preload()
+    for _, file in ipairs(love.filesystem.getDirectoryItems("images")) do
+        local name = file:match("^(.+)%.png$")
+        if name and name:sub(1, 1) ~= "_" then art.image(name) end
+        local anim = file:match("^(.+)%.lua$")
+        if anim then art.anims(anim) end
+    end
+end
+
 -- Draw an image with its feet at (x, y), `height` pixels tall, flipped if f = -1.
 local function sprite(im, x, y, f, height, rot, tint)
     local sc = height / im:getHeight()
-    g.setColor(tint or { 1, 1, 1 })
+    g.setColor(tint or art.tint or { 1, 1, 1 })
     g.draw(im, x, y, rot or 0, sc * f, sc, im:getWidth() / 2, im:getHeight())
 end
 
@@ -38,9 +49,10 @@ function art.anims(name)
                 a.image = art.image(name .. "_" .. anim)
                 if a.image then
                     a.quads = {}
+                    local cols = a.cols or a.frames      -- frames laid out in rows of `cols`
                     for i = 0, a.frames - 1 do
-                        a.quads[i + 1] = g.newQuad(i * meta.frameW, 0, meta.frameW, meta.frameH,
-                            a.image:getDimensions())
+                        a.quads[i + 1] = g.newQuad((i % cols) * meta.frameW, math.floor(i / cols) * meta.frameH,
+                            meta.frameW, meta.frameH, a.image:getDimensions())
                     end
                 end
             end
@@ -68,14 +80,14 @@ local function animated(name, anim, t, x, y, f, height)
     local i = math.floor((t or 0) * m.fps)
     if a.loop then i = i % a.frames else i = math.min(i, a.frames - 1) end
     local sc = height / m.height
-    g.setColor(1, 1, 1)
+    g.setColor(art.tint or { 1, 1, 1 })
     g.draw(a.image, a.quads[i + 1], x, y, 0, sc * f, sc, m.frameW / 2, m.baseline)
     return true
 end
 
 -- How tall each image is drawn (at size 1).
 local HEIGHTS = {
-    kid = 92, renard = 46, poule = 42, ecureuil = 46, marcassin = 38, herisson = 34,
+    kid = 92, renard = 46, poule = 42, ecureuil = 46, marcassin = 38, herisson = 34, ours = 60,
     arbre = 125, maison = 80, volcan = 230,
 }
 
@@ -362,6 +374,105 @@ function art.bolt(x, y, s)
         x - 2 * s, y + 10 * s, x + 6 * s, y - 2 * s, x + 1 * s, y - 1 * s)
 end
 
+-- Controller button icons, as on the Steam Deck / Xbox-style pads (the 8BitDo
+-- pads in X-input mode have the same layout). name: "a" (bottom button), "b"
+-- (right button), "view" (Select), "menu" (Start), "lr" (shoulder buttons),
+-- "dpad" (left / right). (x, y) is the center; returns the icon's width.
+-- Fonts are made for the real size of the screen (the game is drawn at 1280x720
+-- and scaled up), so text stays sharp up to 4K. art.fontScale is set by main.lua.
+art.fontScale = 1
+function art.font(size)
+    return g.newFont(size, "normal", art.fontScale)
+end
+
+local glyphFont
+function art.resetFonts() glyphFont = nil end
+
+function art.glyph(name, x, y, s)
+    s = s or 1
+    local previous = g.getFont()
+    glyphFont = glyphFont or art.font(15)
+    g.setFont(glyphFont)
+    local w = art.drawGlyph(name, x, y, s)
+    g.setFont(previous)
+    return w
+end
+
+function art.drawGlyph(name, x, y, s)
+    local dark = { 0.15, 0.12, 0.1 }
+    g.setLineWidth(2 * s)
+    if name == "a" or name == "b" then
+        g.setColor(name == "a" and { 0.35, 0.75, 0.3 } or { 0.85, 0.3, 0.25 })
+        g.circle("fill", x, y, 13 * s)
+        g.setColor(dark)
+        g.circle("line", x, y, 13 * s)
+        g.setColor(1, 1, 1)
+        local f = g.getFont()
+        local label = name == "a" and "A" or "B"
+        g.print(label, x - f:getWidth(label) / 2, y - f:getHeight() / 2)
+        return 28 * s
+    elseif name == "view" or name == "menu" then
+        g.setColor(0.95, 0.95, 0.95)
+        g.circle("fill", x, y, 13 * s)
+        g.setColor(dark)
+        g.circle("line", x, y, 13 * s)
+        if name == "view" then
+            g.rectangle("line", x - 6 * s, y - 5 * s, 8 * s, 7 * s, 1.5 * s)
+            g.rectangle("fill", x - 2 * s, y - 2 * s, 8 * s, 7 * s, 1.5 * s)
+        else
+            for i = -1, 1 do g.rectangle("fill", x - 6 * s, y + i * 4 * s - 1 * s, 12 * s, 2.2 * s) end
+        end
+        return 28 * s
+    elseif name == "lr" then
+        for i, dx in ipairs({ -15, 15 }) do
+            g.setColor(0.95, 0.95, 0.95)
+            g.rectangle("fill", x + dx * s - 13 * s, y - 8 * s, 26 * s, 16 * s, 7 * s)
+            g.setColor(dark)
+            g.rectangle("line", x + dx * s - 13 * s, y - 8 * s, 26 * s, 16 * s, 7 * s)
+            local f = g.getFont()
+            local label = i == 1 and "L" or "R"
+            g.print(label, x + dx * s - f:getWidth(label) / 2, y - f:getHeight() / 2)
+        end
+        return 60 * s
+    elseif name == "dpad" then
+        g.setColor(0.95, 0.95, 0.95)
+        g.rectangle("fill", x - 16 * s, y - 6 * s, 32 * s, 12 * s, 3 * s)
+        g.rectangle("fill", x - 6 * s, y - 16 * s, 12 * s, 32 * s, 3 * s)
+        g.setColor(dark)
+        g.polygon("fill", x - 14 * s, y, x - 9 * s, y - 4 * s, x - 9 * s, y + 4 * s)
+        g.polygon("fill", x + 14 * s, y, x + 9 * s, y - 4 * s, x + 9 * s, y + 4 * s)
+        return 34 * s
+    end
+    return 0
+end
+
+-- Draw a line of icons and words, centered on cx: parts = { "@a", "text", ... }
+-- (a part starting with @ is an icon, see art.glyph). font: for the words.
+function art.hint(parts, cx, y, font, color)
+    g.setFont(font)
+    local widths, total = {}, 0
+    for i, p in ipairs(parts) do
+        local icon = p:sub(1, 1) == "@" and p:sub(2)
+        widths[i] = icon and (icon == "lr" and 62 or icon == "dpad" and 36 or 30) or font:getWidth(p) + 10
+        total = total + widths[i]
+    end
+    local x = cx - total / 2
+    for i, p in ipairs(parts) do
+        if p:sub(1, 1) == "@" then
+            art.glyph(p:sub(2), x + widths[i] / 2, y)
+        else
+            g.setColor(0.15, 0.08, 0.05, 0.85)
+            for i = 0, 11 do
+                local a = i / 12 * math.pi * 2
+                g.print(p, x + 5 + math.cos(a) * 2.2, y - font:getHeight() / 2 + math.sin(a) * 2.2)
+            end
+            g.setColor(color or { 1, 1, 1 })
+            g.print(p, x + 5, y - font:getHeight() / 2)
+        end
+        x = x + widths[i]
+    end
+end
+
 function art.star(x, y, r, filled)
     local pts = {}
     for i = 0, 9 do
@@ -482,10 +593,11 @@ end
 -- mood: "calme", "surpris", "fume" or "erupt" (images/volcan_<mood>.png).
 -- The four drawings have the same base width but not the same height (smoke,
 -- lava fountain), so they are scaled by width to keep the same mountain.
-function art.volcano(x, y, t, glow, mood)
+-- width: how wide it is drawn (260 by default).
+function art.volcano(x, y, t, glow, mood, width)
     local im = art.image("volcan_" .. (mood or "calme")) or art.image("volcan_calme")
     if im then
-        local sc = 260 / im:getWidth()
+        local sc = (width or 260) / im:getWidth()
         local wobble = mood == "erupt" and math.sin(t * 40) * 0.015 or 0
         g.setColor(1, 1, 1)
         g.draw(im, x, y, wobble, sc, sc * (mood == "fume" and 1 + math.sin(t * 6) * 0.02 or 1),
