@@ -1,0 +1,32 @@
+Copyright (c) 2026 Benjamin Farcy. All rights reserved.
+
+"Sauve les Animaux !" (volcan/) and "Rugby de la Jungle" (mygame/) — the
+games, their code, their images, animations, sounds and music, the tools in
+volcan/outils/ and .claude/skills/ — are the property of the copyright holder.
+
+PERMISSION GIVEN TO FRIENDS AND FAMILY
+You may download, install and play the ready-to-play versions of the games
+(the files made by volcan/outils/build.sh) for your own personal, private,
+non-commercial use, and share them with people you know personally, free of
+charge, unchanged and with this notice.
+
+EVERYTHING ELSE NEEDS WRITTEN PERMISSION
+Without prior written permission from the copyright holder, you may NOT:
+  - sell, rent or charge for the games, or use them in any commercial way;
+  - publish them or make them publicly available (stores, Steam, itch.io,
+    websites, public file sharing...);
+  - copy, modify, adapt or reuse the code, the images, the animations, the
+    characters, the sounds or the music, in whole or in part, in other works;
+  - use the characters, names or likenesses of the children appearing in the
+    games (Rami, Zina, Lila) for any purpose.
+Reading this source code does not give you any right to use it.
+
+NO WARRANTY
+The games are provided "as is", without warranty of any kind. In no event
+shall the copyright holder be liable for any claim, damages or other
+liability arising from their use.
+
+THIRD-PARTY COMPONENTS (not covered by this notice)
+The ready-to-play versions include the LÖVE game framework and its libraries
+(https://love2d.org, zlib license and the licenses listed in its license.txt),
+which keep their own licenses; the Windows version ships that license.txt.

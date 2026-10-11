@@ -27,13 +27,14 @@ rm -f "$DIST/sauve-les-animaux.love"
 # (journal.lua is left out: the game log is for us, not for the players;
 #  without it the game simply logs nothing)
 (cd "$GAME" && zip -q -9 -r "$DIST/sauve-les-animaux.love" ./*.lua images -x "images/_*" "*.DS_Store" "./journal.lua")
+zip -q -j "$DIST/sauve-les-animaux.love" "$HERE/LICENSE"      # the license travels with the game
 echo "OK  dist/sauve-les-animaux.love ($(du -h "$DIST/sauve-les-animaux.love" | cut -f1))"
 
 # 2) Linux: the LÖVE AppImage + the game + a launcher script
 L="$DIST/$NAME-linux"
 rm -rf "$L" && mkdir -p "$L"
 cp "$CACHE/love-11.5-x86_64.AppImage" "$L/love.AppImage"
-cp "$DIST/sauve-les-animaux.love" "$L/"
+cp "$DIST/sauve-les-animaux.love" "$HERE/LICENSE" "$L/"
 cat > "$L/$NAME.sh" <<'SH'
 #!/bin/sh
 # Launch "Sauve les Animaux !". In Steam: Add a Non-Steam Game -> this file.
@@ -50,6 +51,7 @@ W="$DIST/$NAME-windows"
 rm -rf "$W" "$DIST/love-11.5-win64" && mkdir -p "$W"
 unzip -q -o "$CACHE/love-11.5-win64.zip" -d "$DIST"
 cp "$DIST"/love-11.5-win64/*.dll "$DIST/love-11.5-win64/license.txt" "$W/"
+cp "$HERE/LICENSE" "$W/LICENSE-Sauve-les-Animaux.txt"   # (not LICENSE.txt: it would replace LÖVE's license.txt)
 cat "$DIST/love-11.5-win64/love.exe" "$DIST/sauve-les-animaux.love" > "$W/$NAME.exe"
 rm -rf "$DIST/love-11.5-win64"
 (cd "$DIST" && rm -f "$NAME-windows.zip" && zip -q -r "$NAME-windows.zip" "$NAME-windows")
@@ -62,6 +64,7 @@ if [ -d /Applications/love.app ]; then
     rm -rf "$M" && mkdir -p "$M"
     cp -R /Applications/love.app "$APP"
     cp "$DIST/sauve-les-animaux.love" "$APP/Contents/Resources/game.love"
+    cp "$HERE/LICENSE" "$APP/Contents/Resources/LICENSE"
     PL="$APP/Contents/Info.plist"
     /usr/libexec/PlistBuddy -c "Set :CFBundleName Sauve les Animaux" "$PL"
     /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier fr.famille.sauve-les-animaux" "$PL"
