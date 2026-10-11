@@ -6,6 +6,7 @@ local sfx = require("sfx")
 local art = require("art")
 local lave = require("lave")
 local mare = require("mare")
+local events = require("events")
 local T = require("lang").t
 
 local world = {}
@@ -211,17 +212,28 @@ end
 
 -- Setup --------------------------------------------------------------------------
 
+-- (Re)make the fonts, sharp for the current screen size.
+function world.makeFonts()
+    fonts.huge = art.font(64)
+    fonts.big = art.font(40)
+    fonts.mid = art.font(26)
+    fonts.small = art.font(20)
+end
+
 function world.load()
-    fonts.huge = g.newFont(64)
-    fonts.big = g.newFont(40)
-    fonts.mid = g.newFont(26)
-    fonts.small = g.newFont(18)
+    world.makeFonts()
     lave.load()
+    events.setup(world, { rand = rand, dist = dist, clamp = clamp, popup = popup, smoke = smoke, sfx = sfx,
+        art = art, mare = mare, inPond = mare.inPond, blockByTrees = blockByTrees, penAt = penAt,
+        inLava = inLava, lavaX = function(y) return world.lavaX(y) end,
+        PENS = PENS, HILL_X = HILL_X, TOP = TOP })
     mare.setup(world, { rand = rand, dist = dist, popup = popup, smoke = smoke, sfx = sfx, art = art,
         lavaX = function(y) return world.lavaX(y) end, TOP = TOP })
 end
 
-function world.start(chosen)
+-- calm: the calm mode (no lava coming, no time limit).
+function world.start(chosen, calm)
+    world.calm = calm and true or false
     world.time = 0
     world.lavaBase = LAVA_START
     world.lavaProgress = 0
@@ -273,6 +285,7 @@ function world.start(chosen)
         end
     end
     world.total = #world.animals + #world.fish
+    events.start(#chosen)
 
     world.trees, world.flowers, world.mushrooms = {}, {}, {}
     -- a few trees, spread out so they don't hide the kids too much,
@@ -362,6 +375,7 @@ end
 local GRAB_REPEAT = 0.35   -- seconds between two grabs while the button is held
 tryGrab = function(k, fresh)
     k.grabWait = GRAB_REPEAT
+    if events.tryGrab(k) then return end
     local caught = mare.tryCatch(k)
     if caught == true then return end
     local best, bestD
@@ -394,6 +408,8 @@ function world.action(p, action)
 
     if action == "grab" then
         tryGrab(k, true)
+    elseif action == "drop" and events.drop(k) then
+        return
     elseif action == "drop" and #k.followers > 0 then
         -- let go of one animal only (the last in line), not all of them
         local a = table.remove(k.followers)
@@ -455,6 +471,7 @@ local function updateKid(k, dt)
     local leading = #k.followers > 0 or k.fish > 0
     local px, py = k.x, k.y
     local speed = (leading and KID_WALK_SPEED or KID_SPEED) * k.look.speed
+    if k.holdingBig then speed = speed * 0.7 end
     k.x = clamp(k.x + dx * speed * dt, 20, world.W - 20)
     k.y = clamp(k.y + dy * speed * dt, TOP + 20, world.H - 8)
     blockByTrees(k)
@@ -488,7 +505,7 @@ local function updateKid(k, dt)
         for _, a in ipairs(k.followers) do
             a.state, a.pen, a.wait = "home", pen, rand(0.5, 1.5)
             a.tx, a.ty = a.x, a.y
-            popup("+1", a.x, a.y - 40, { 1, 0.4, 0.5 }, true)
+            popup("+" .. (a.value or 1), a.x, a.y - 40, { 1, 0.4, 0.5 }, true)
             for _ = 1, 3 do
                 table.insert(world.particles, { heart = true, x = a.x + rand(-15, 15), y = a.y - 30,
                     vx = rand(-20, 20), vy = rand(-70, -40), r = rand(0.6, 1), life = 1.2, max = 1.2 })
@@ -514,7 +531,7 @@ local function updateAnimal(a, dt)
     a.moving = false
     a.animT = (a.animT or 0) + dt
     if a.state == "free" then
-        wander(a, dt, 60, HILL_X - 40, TOP + 30, world.H - 20, 40)
+        if not events.shy(a, dt) then wander(a, dt, 60, HILL_X - 40, TOP + 30, world.H - 20, 40) end
     elseif a.state == "follow" then
         for _, k in ipairs(world.kids) do
             for i, b in ipairs(k.followers) do
@@ -618,7 +635,7 @@ end
 -- The volcano's face: calm at first and at the end, surprised just before an
 -- eruption (a warning for the players), erupting while the ground shakes.
 function world.volcanoMood()
-    if world.phase ~= "play" then return "calme" end
+    if world.phase ~= "play" or world.calm then return "calme" end
     if world.shake > 0 then return "erupt" end
     if world.nextEruption - world.time < 2.5 then return "surpris" end
     if world.time < INTRO then return "calme" end
@@ -627,7 +644,7 @@ end
 
 -- Animals in the pens plus fish in the jars.
 function world.saved()
-    return world.count("home") + mare.count("jar")
+    return world.count("home") + mare.count("jar") + events.bonus()
 end
 
 function world.count(state)
@@ -680,17 +697,18 @@ function world.update(dt)
     updateEffects(dt)
 
     if world.phase == "play" then
-        local progress = lavaProgress(world.time)
+        local progress = world.calm and 0 or lavaProgress(world.time)
         world.lavaProgress = progress
         world.lavaBase = LAVA_START + (LAVA_END - LAVA_START) * progress
         updateLavaFront()
-        if world.time >= world.nextEruption then
+        if not world.calm and world.time >= world.nextEruption then
             eruption()
             world.nextEruption = world.nextEruption + ERUPTION_EVERY
         end
         local left = world.count("free") + world.count("follow") + world.count("scared")
             + world.count("gone") + world.count("back") + mare.count("swim") + mare.count("carried")
-        if progress >= 1 then
+            + events.left()
+        if not world.calm and progress >= 1 then
             world.phase = "calm"
             world.calmTimer = 3
         elseif left == 0 then
@@ -719,6 +737,7 @@ function world.update(dt)
     separateKids()
     mare.update(dt)
     for _, a in ipairs(world.animals) do updateAnimal(a, dt) end
+    events.update(dt)
     if world.phase == "play" then checkPens(dt) end
 end
 
@@ -727,8 +746,9 @@ end
 local function outlined(text, font, x, y, w, color)
     g.setFont(font)
     g.setColor(0.15, 0.08, 0.05, 0.85)
-    for ox = -2, 2, 2 do
-        for oy = -2, 2, 2 do g.printf(text, x + ox, y + oy, w, "center") end
+    for i = 0, 11 do   -- a round outline, smooth at any resolution
+        local a = i / 12 * math.pi * 2
+        g.printf(text, x + math.cos(a) * 2.2, y + math.sin(a) * 2.2, w, "center")
     end
     g.setColor(color or { 1, 1, 1 })
     g.printf(text, x, y, w, "center")
@@ -792,6 +812,7 @@ local function drawAnimal(a)
         elseif a.walk > 0 then hop = math.abs(math.sin(a.walk)) * 3 end
     end
     art.animal(a.kind, a.x, a.y - hop, a.facing, 1.2, true, a.anim, a.animT)
+    events.drawGold(a, function() art.animal(a.kind, a.x, a.y - hop, a.facing, 1.2, false, a.anim, a.animT) end)
     if a.state == "home" and a.pen and PENS[a.pen].trouble and PREY[a.kind] then
         outlined("!", fonts.big, a.x - 20, a.y - 85, 40, { 1, 0.3, 0.2 })
     end
@@ -804,7 +825,8 @@ local function hud()
     art.heart(475, 34, 1.3)
     outlined(T("saved") .. world.saved() .. " / " .. world.total, fonts.big, 490, 10, 340)
 
-    -- how far the lava has come (the timer)
+    -- how far the lava has come (the timer); not in calm mode
+    if world.calm then return end
     local progress = world.lavaProgress
     g.setColor(0.2, 0.12, 0.08, 0.75)
     g.rectangle("fill", 870, 8, 400, 52, 16)
@@ -859,9 +881,7 @@ local function results()
         art.kid(k.look, 250 + (i - 1) * 780, 620, i == 1 and 1 or -1, 1.6,
             0, "saut", world.time % ((art.duration(k.look.id, "saut") or 1) + 0.6))
     end
-    g.setFont(fonts.mid)
-    g.setColor(0.45, 0.3, 0.18)
-    g.printf(T("again"), 190, 595, 900, "center")
+    art.hint({ "@a", T("again_short") }, world.W / 2, 610, fonts.mid)
 end
 
 function world.draw()
@@ -884,12 +904,15 @@ function world.draw()
         if a.state ~= "gone" then table.insert(things, { y = a.y, animal = a }) end
     end
     for _, k in ipairs(world.kids) do table.insert(things, { y = k.y, kid = k }) end
+    if world.big and world.big.y then table.insert(things, { y = world.big.y, big = true }) end
     table.sort(things, function(a, b) return a.y < b.y end)
     for _, o in ipairs(things) do
         if o.tree then
             art.tree(o.tree.x, o.tree.y, o.tree.s, o.tree.burnt, o.tree.kind, o.tree.f)
         elseif o.animal then
             drawAnimal(o.animal)
+        elseif o.big then
+            events.drawBig()
         else
             drawKid(o.kid)
         end
@@ -906,7 +929,9 @@ function world.draw()
     end
     for _, p in ipairs(world.particles) do
         local a = p.life / p.max
-        if p.splash then
+        if p.star then
+            art.star(p.x, p.y, p.r * a, true)
+        elseif p.splash then
             g.setColor(0.75, 0.9, 1, a)
             g.circle("fill", p.x, p.y, p.r)
         elseif p.heart then

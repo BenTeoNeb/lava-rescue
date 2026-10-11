@@ -6,6 +6,8 @@ background) into separate transparent PNGs for the game.
 
 The names are given in reading order: row by row, left to right
 (a single column is read top to bottom). Each drawing is saved as images/<name>.png.
+Options: --max=0 keeps the full resolution (default: 512 px high at most),
+--sortie=DIR saves somewhere else than images/.
 Use --apercu to only save a preview of what was detected (images/_apercu.png).
 """
 
@@ -70,7 +72,10 @@ def find_drawings(solid, wanted):
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    opts = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
     preview = "--apercu" in sys.argv
+    max_height = int(opts.get("max", MAX_HEIGHT))     # 0 = keep the full resolution
+    out = Path(opts["sortie"]) if "sortie" in opts else OUT
     if len(args) < 2:
         print(__doc__)
         sys.exit(1)
@@ -107,10 +112,11 @@ def main():
         a = alpha[y0:y1, x0:x1] * m[y0:y1, x0:x1]   # hide bits of the neighbours
         rgba = np.dstack([clean[y0:y1, x0:x1], a * 255]).astype(np.uint8)
         piece = Image.fromarray(rgba, "RGBA")
-        if piece.height > MAX_HEIGHT:
-            w = round(piece.width * MAX_HEIGHT / piece.height)
-            piece = piece.resize((w, MAX_HEIGHT), Image.LANCZOS)
-        piece.save(OUT / f"{name}.png")
+        if max_height and piece.height > max_height:
+            w = round(piece.width * max_height / piece.height)
+            piece = piece.resize((w, max_height), Image.LANCZOS)
+        out.mkdir(parents=True, exist_ok=True)
+        piece.save(out / f"{name}.png")
         print(f"  {name}.png  ({piece.width}x{piece.height})")
 
 

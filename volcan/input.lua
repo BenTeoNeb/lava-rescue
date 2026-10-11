@@ -12,7 +12,7 @@ local BUTTONS = {
     a = "grab", y = "grab", b = "drop", x = "drop",
     start = "start", back = "back",
     leftshoulder = "lang", rightshoulder = "lang",
-    dpleft = "left", dpright = "right",
+    dpleft = "left", dpright = "right", dpup = "up", dpdown = "down",
 }
 
 -- Keyboard: player 1 = arrows + Space (grab) / Enter (drop),
@@ -57,6 +57,13 @@ function input.stickX(p)
     local js = slots[p]
     if js and js:isGamepad() then return js:getGamepadAxis("leftx") end
     if js then return js:getAxis(1) or 0 end
+    return 0
+end
+
+function input.stickY(p)
+    local js = slots[p]
+    if js and js:isGamepad() then return js:getGamepadAxis("lefty") end
+    if js then return js:getAxis(2) or 0 end
     return 0
 end
 

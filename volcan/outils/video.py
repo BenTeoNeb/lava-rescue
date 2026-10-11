@@ -13,8 +13,9 @@
 
 "marche" and "course" become loops: the script finds, inside the range you
 gave, the stretch that loops back most smoothly. Other actions play once.
-Options: --repos=200 to choose the standing frame yourself, --fps=12,
---boucle-marche=24 to force a longer walk loop (same for --boucle-course).
+Options: --repos=200 to choose the standing frame yourself, --fps=24,
+--boucle-marche=24 to force a longer walk loop (same for --boucle-course),
+--hauteur=400 (frame height), --sortie=DIR (instead of images/).
 """
 
 import sys
@@ -30,7 +31,8 @@ from detourage import background_color, cut_out  # noqa: E402
 HERE = Path(__file__).resolve().parent.parent
 OUT = HERE / "images"
 LOOPS = {"marche", "course"}
-OUT_HEIGHT = 320        # height of each frame in the strips
+OUT_HEIGHT = 400        # height of each frame in the strips (enough for 4K)
+MAX_WIDTH = 4096        # the frames are laid out in rows no wider than this
 # Shortest loop allowed, in video frames (at 24 images/s). In a side view the
 # left and right steps look alike, so without this the script could pick a
 # single step instead of a full cycle, and the legs would jump at the loop.
@@ -94,12 +96,14 @@ def main():
         return
 
     name = args[1]
+    out_dir = Path(opts["sortie"]) if "sortie" in opts else OUT
+    out_height = int(opts.get("hauteur", OUT_HEIGHT))
     ranges = {}
     for spec in args[2:]:
         anim, span = spec.split("=")
         a, b = (int(v) for v in span.split("-"))
         ranges[anim] = (a, b)
-    step = max(1, round(video_fps / int(opts.get("fps", 12))))
+    step = max(1, round(video_fps / int(opts.get("fps", 24))))
 
     # small blurred copies to compare frames quickly
     small = [cv2.GaussianBlur(cv2.resize(f, (f.shape[1] // 8, f.shape[0] // 8)), (3, 3), 0).astype(np.float32)
@@ -145,30 +149,35 @@ def main():
     right = min(frames[0].shape[1], max(b[3] for b in boxes) + 6)
     if min(b[0] for b in boxes) <= 1:
         print("Attention : le personnage touche le haut de la vidéo (tête coupée pendant un saut ?)")
-    scale = OUT_HEIGHT / (bottom - top)
-    fw, fh = round((right - left) * scale), OUT_HEIGHT
+    scale = out_height / (bottom - top)
+    fw, fh = round((right - left) * scale), out_height
 
     # where the feet are and how tall the character is, measured on the standing frame
     ys, _ = np.nonzero(cut[rest][1] > 0.5)
     baseline = round((ys.max() - top) * scale)
     height = round((ys.max() - ys.min()) * scale)
 
-    OUT.mkdir(exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
     lua = [f"-- made by outils/video.py from {video.name}", "return {",
            f"    frameW = {fw}, frameH = {fh}, baseline = {baseline}, height = {height},",
            f"    fps = {video_fps / step:g},", "    anims = {"]
     for anim, idxs in picks.items():
-        strip = Image.new("RGBA", (fw * len(idxs), fh), (0, 0, 0, 0))
+        # frames in a grid, at most MAX_WIDTH wide (some graphics cards refuse
+        # wider images)
+        cols = max(1, min(len(idxs), MAX_WIDTH // fw))
+        rows = (len(idxs) + cols - 1) // cols
+        strip = Image.new("RGBA", (fw * cols, fh * rows), (0, 0, 0, 0))
         for n, i in enumerate(idxs):
             clean, alpha = cut[i]
             rgba = np.dstack([clean, alpha * 255])[top:bottom, left:right].astype(np.uint8)
-            strip.paste(Image.fromarray(rgba, "RGBA").resize((fw, fh), Image.LANCZOS), (n * fw, 0))
-        strip.save(OUT / f"{name}_{anim}.png")
+            strip.paste(Image.fromarray(rgba, "RGBA").resize((fw, fh), Image.LANCZOS),
+                        ((n % cols) * fw, (n // cols) * fh))
+        strip.save(out_dir / f"{name}_{anim}.png")
         loop = "true" if anim in LOOPS else "false"
-        lua.append(f"        {anim} = {{ frames = {len(idxs)}, loop = {loop} }},")
+        lua.append(f"        {anim} = {{ frames = {len(idxs)}, cols = {cols}, loop = {loop} }},")
         print(f"  -> images/{name}_{anim}.png ({len(idxs)} images)")
     lua += ["    },", "}"]
-    (OUT / f"{name}.lua").write_text("\n".join(lua) + "\n")
+    (out_dir / f"{name}.lua").write_text("\n".join(lua) + "\n")
     print(f"  -> images/{name}.lua")
 
 
