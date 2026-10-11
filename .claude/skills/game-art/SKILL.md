@@ -5,7 +5,7 @@ description: Create all the art of a 2D game with image and video generation API
 
 # Game art: consistent style, right sizes, 4K, smooth animations
 
-This is the method behind "Sauve les Animaux !" (volcan/), turned into tools.
+This is the method behind "Lava Rescue!" (volcan/), turned into tools.
 Everything is driven by an `art.json` file in the game folder (format below)
 and `scripts/art.py`. Run the commands **from the game folder**.
 
@@ -165,7 +165,7 @@ after when replacing images in a game.
 Known limit: the outline measure is unreliable on tiny drawings (a pebble
 can read 0): check them by eye.
 
-A full example: `volcan/art.json` (every sheet of "Sauve les Animaux !").
+A full example: `volcan/art.json` (every sheet of "Lava Rescue!").
 
 ## Files
 

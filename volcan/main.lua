@@ -1,4 +1,4 @@
--- Sauve les Animaux ! The volcano is waking up: bring the forest animals
+-- Lava Rescue! (Sauve les Animaux !) The volcano is waking up: bring the forest animals
 -- to the pens on the hill before the lava arrives. 1 or 2 players, together.
 
 local input = require("input")
