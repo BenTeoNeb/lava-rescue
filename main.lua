@@ -9,9 +9,9 @@ local musique = require("musique")
 local lang = require("lang")
 local T = lang.t
 
--- Sound on/off (music and sound effects together): off by default,
+-- Sound on/off (music and sound effects together): on by default,
 -- Select on the controller (or M on the keyboard) switches it.
-local soundOn = false
+local soundOn = true
 local function setSound(on)
     soundOn = on
     love.audio.setVolume(on and 1 or 0)
@@ -173,7 +173,7 @@ function love.load()
     world.load()
     musique.load()
     art.preload()
-    setSound(false)
+    setSound(true)
     makeFonts()
     resetSelect()
     for _, js in ipairs(love.joystick.getJoysticks()) do
@@ -202,11 +202,18 @@ function love.update(dt)
             end
             stickWasOut[p] = out
         end
-        musique.speed(1)
+        musique.update(dt, 0, 0, false)
     else
         world.update(dt)
-        -- the music hurries up a little as the lava advances
-        musique.speed(world.phase == "play" and 1 + 0.15 * world.lavaProgress or 1)
+        -- the music gets drums and energy as the lava advances (not in calm mode);
+        -- big moments (eruption, victory) lower it for a moment
+        local tension = 0
+        if world.phase == "play" and not world.calm then
+            tension = math.min(1, math.max(0, (world.lavaProgress - 0.12) * 1.8))
+            if world.volcanoMood() ~= "fume" and world.time > 5 then tension = math.max(tension, 0.8) end
+        end
+        if (world.duck or 0) > 0 then musique.duck(world.duck); world.duck = 0 end
+        musique.update(dt, tension, world.calm and 0.1 or world.lavaProgress, true)
         if world.done then
             resetSelect()
             state = "select"
