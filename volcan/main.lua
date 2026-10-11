@@ -6,6 +6,16 @@ local sfx = require("sfx")
 local art = require("art")
 local world = require("world")
 local musique = require("musique")
+local lang = require("lang")
+local T = lang.t
+
+-- Sound on/off (music and sound effects together): off by default,
+-- Select on the controller (or M on the keyboard) switches it.
+local soundOn = false
+local function setSound(on)
+    soundOn = on
+    love.audio.setVolume(on and 1 or 0)
+end
 
 local W, H = 1280, 720
 local g = love.graphics
@@ -71,6 +81,7 @@ function love.load()
     sfx.load()
     world.load()
     musique.load()
+    setSound(false)
     fonts.title = g.newFont(64)
     fonts.big = g.newFont(36)
     fonts.mid = g.newFont(24)
@@ -133,8 +144,8 @@ local function drawSelect()
         art.animal(kind, 300 + i * 120, 714 - math.abs(math.sin(t * 4 + i)) * 6, 1, 1.0)
     end
 
-    outlined("SAUVE LES ANIMAUX !", fonts.title, 0, 30, W, { 1, 0.85, 0.3 })
-    outlined("Choisis ton personnage", fonts.mid, 0, 110, W)
+    outlined(T("title"), fonts.title, 0, 30, W, { 1, 0.85, 0.3 })
+    outlined(T("choose"), fonts.mid, 0, 110, W)
 
     for i, k in ipairs(art.KIDS) do
         local x = 220 + (i - 1) * 320 - 60
@@ -159,7 +170,7 @@ local function drawSelect()
         -- what makes them special, in pictures: bolts = speed, hens = how many animals
         g.setColor(0.2, 0.12, 0.08, 0.6)
         g.rectangle("fill", x - 125, 524, 250, 82, 14)
-        outlined(k.trait, fonts.small, x - 160, 528, 320, { 1, 0.95, 0.6 })
+        outlined(T(k.trait), fonts.small, x - 160, 528, 320, { 1, 0.95, 0.6 })
         local bolts = k.speed > 1.1 and 3 or k.speed < 0.95 and 1 or 2
         for b = 1, bolts do art.bolt(x - 100 + (b - 1) * 22, 578, 1.5) end
         for c = 1, k.carry do art.animal("poule", x - 18 + (c - 1) * 30, 598, 1, 0.8, false) end
@@ -167,15 +178,24 @@ local function drawSelect()
         for p = 1, 2 do
             local me = pick[p]
             if me.joined and me.choice == i then
-                outlined("J" .. p .. (me.ready and "  Prêt !" or ""), fonts.mid, x - 110, 170, 220,
+                outlined(T("player") .. p .. (me.ready and "  " .. T("ready") or ""), fonts.mid, x - 110, 170, 220,
                     PLAYER_COLORS[p])
             end
         end
     end
 
-    outlined("Gauche / droite pour choisir  ·  Bouton du bas : c'est parti !", fonts.small, 0, 616, W)
+    -- sound on/off, top left (Select or M)
+    g.setColor(0.2, 0.12, 0.08, 0.6)
+    g.rectangle("fill", 14, 14, 240, 34, 12)
+    outlined(T(soundOn and "sound_on" or "sound_off") .. "  (Select)", fonts.small, 14, 20, 240,
+        soundOn and { 0.6, 1, 0.6 } or { 0.85, 0.85, 0.85 })
+    -- language, just below (L1 / R1 or L)
+    g.setColor(0.2, 0.12, 0.08, 0.6)
+    g.rectangle("fill", 14, 54, 240, 34, 12)
+    outlined(T("language") .. "  (L1 / R1)", fonts.small, 14, 60, 240, { 1, 0.95, 0.6 })
+    outlined(T("how"), fonts.small, 0, 616, W)
     if not pick[2].joined then
-        outlined("Joueur 2 : appuie sur un bouton pour jouer aussi !", fonts.small, 0, 642, W, PLAYER_COLORS[2])
+        outlined(T("join"), fonts.small, 0, 642, W, PLAYER_COLORS[2])
     end
 end
 
@@ -192,6 +212,11 @@ function love.draw()
 end
 
 local function onAction(p, action)
+    if action == "back" then setSound(not soundOn) return end   -- Select: sound on/off
+    if action == "lang" then                                     -- L1/R1: language
+        if state == "select" then lang.toggle() end
+        return
+    end
     if state == "select" then selectAction(p, action) else world.action(p, action) end
 end
 
@@ -209,6 +234,8 @@ function love.gamepadpressed(joystick, button)
 end
 
 function love.keypressed(key)
+    if key == "m" then setSound(not soundOn) return end
+    if key == "l" and state == "select" then lang.toggle() return end
     local p, action = input.keypressed(key)
     if p then onAction(p, action) end
 end

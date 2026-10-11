@@ -11,6 +11,7 @@ local input = {}
 local BUTTONS = {
     a = "grab", y = "grab", b = "drop", x = "drop",
     start = "start", back = "back",
+    leftshoulder = "lang", rightshoulder = "lang",
     dpleft = "left", dpright = "right",
 }
 
@@ -82,6 +83,18 @@ function input.move(p)
     if love.keyboard.isDown(k.up) then dy = -1 end
     if love.keyboard.isDown(k.down) then dy = 1 end
     return dx, dy
+end
+
+-- Is this action's button held down right now (any of its buttons or keys)?
+function input.held(p, action)
+    local js = slots[p]
+    if js and js:isGamepad() then
+        for button, a in pairs(BUTTONS) do
+            if a == action and js:isGamepadDown(button) then return true end
+        end
+    end
+    local key = KEYS[p][action]
+    return key ~= nil and love.keyboard.isDown(key)
 end
 
 function input.gamepadpressed(joystick, button)

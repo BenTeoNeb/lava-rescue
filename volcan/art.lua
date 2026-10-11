@@ -98,15 +98,15 @@ art.TRUNKS = {
 -- The colors are only used if there are no drawings for them in images/.
 art.KIDS = {
     { id = "rami", name = "Rami", size = 0.82, style = "short",
-      speed = 1.25, carry = 2, reach = 80, trait = "Rapide !",
+      speed = 1.25, carry = 2, reach = 80, trait = "trait_rami",
       skin = { 0.96, 0.8, 0.65 }, hair = { 0.22, 0.14, 0.08 },
       top = { 0.25, 0.55, 0.95 }, bottom = { 0.15, 0.25, 0.5 } },
     { id = "zina", name = "Zina", size = 1.0, style = "puffs", dress = true,
-      speed = 0.9, carry = 4, reach = 80, trait = "Costaude !",
+      speed = 0.9, carry = 4, reach = 80, trait = "trait_zina",
       skin = { 0.96, 0.8, 0.65 }, hair = { 0.14, 0.09, 0.06 },
       top = { 0.93, 0.42, 0.7 }, bow = { 1, 0.85, 0.2 } },
     { id = "lila", name = "Lila", size = 1.0, style = "long", dress = true,
-      speed = 1.0, carry = 3, reach = 150, trait = "Amie des animaux !",
+      speed = 1.0, carry = 3, reach = 150, trait = "trait_lila",
       skin = { 0.96, 0.8, 0.65 }, hair = { 0.5, 0.28, 0.12 },
       top = { 0.2, 0.75, 0.65 }, bow = { 0.95, 0.3, 0.4 } },
 }

@@ -87,7 +87,11 @@ function musique.load()
     source = source or build()
     source:setLooping(true)
     source:setVolume(0.35)
-    source:play()
+    source:play()   -- (the sound on/off switch in main.lua mutes everything)
+end
+
+function musique.playing()
+    return source ~= nil and source:isPlaying()
 end
 
 -- speed: 1 = normal; a bit more makes it faster and higher, like a hurry.

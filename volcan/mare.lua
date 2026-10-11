@@ -80,15 +80,12 @@ local function fishInReach(k)
     return best
 end
 
--- The grab button near the pond. Returns true if it was used for fishing.
+-- The grab button near the pond. Returns true if a fish was caught, "full" if
+-- there was one but no room left, false if no fish is in reach.
 function mare.tryCatch(k)
     local f = fishInReach(k)
     if not f then return false end
-    if #k.followers + (k.fish or 0) >= k.look.carry then
-        ctx.popup("Plus de place !", k.x, k.y - 90, { 1, 1, 1 })
-        ctx.sfx.play("full")
-        return true
-    end
+    if #k.followers + (k.fish or 0) >= k.look.carry then return "full" end
     f.state, f.kid = "carried", k
     k.fish = (k.fish or 0) + 1
     k.net = 0.5                        -- swing the net
@@ -387,20 +384,6 @@ function mare.drawJarHut(t)
             i = i + 1
         end
     end
-end
-
--- The little bubble over the fish a kid could catch.
-function mare.drawHint(k, t)
-    if #k.followers + (k.fish or 0) >= k.look.carry or k.burn > 0 then return false end
-    local f = fishInReach(k)
-    if not f then return false end
-    local bob = math.sin(t * 6) * 4
-    local x, y = f.x, f.y - 45 + bob
-    g.setColor(1, 1, 1, 0.95)
-    g.circle("fill", x, y, 16)
-    g.polygon("fill", x - 6, y + 12, x + 6, y + 12, x, y + 22)
-    mare.drawFish(x, y, 1, 0.85, f, t * 8)
-    return true
 end
 
 return mare

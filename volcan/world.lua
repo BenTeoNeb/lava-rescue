@@ -6,6 +6,7 @@ local sfx = require("sfx")
 local art = require("art")
 local lave = require("lave")
 local mare = require("mare")
+local T = require("lang").t
 
 local world = {}
 local g = love.graphics
@@ -233,7 +234,6 @@ function world.start(chosen)
     world.shake = 0
     world.nextEruption = INTRO
     world.popups, world.particles, world.rocks = {}, {}, {}
-    world.foxTipShown = false
 
     world.kids = {}
     for i, c in ipairs(chosen) do
@@ -329,10 +329,11 @@ function world.start(chosen)
         table.sort(world.props, function(a, b) return a.y < b.y end)
     end
 
-    banner("Le volcan se réveille ! Sauve les animaux et les poissons !", INTRO, { 1, 0.85, 0.3 })
 end
 
 -- Actions ------------------------------------------------------------------------
+
+local tryGrab
 
 local function kidOf(p)
     for _, k in ipairs(world.kids) do
@@ -356,6 +357,32 @@ local function stopFollowing(a)
     end
 end
 
+-- Call the nearest animal (or catch the nearest fish). `fresh`: the button was
+-- just pressed (not held), so a "no room" warning is shown.
+local GRAB_REPEAT = 0.35   -- seconds between two grabs while the button is held
+tryGrab = function(k, fresh)
+    k.grabWait = GRAB_REPEAT
+    local caught = mare.tryCatch(k)
+    if caught == true then return end
+    local best, bestD
+    for _, a in ipairs(world.animals) do
+        if a.state == "free" or a.state == "scared" or a.state == "back" then
+            local d = dist(k, a)
+            if d < k.look.reach and (not bestD or d < bestD) then best, bestD = a, d end
+        end
+    end
+    if caught == "full" or (best and #k.followers + k.fish >= k.look.carry) then
+        if fresh then sfx.play("full") end   -- no room left: a little "bonk" sound
+        return
+    end
+    if not best then return end
+    best.state = "follow"
+    table.insert(k.followers, best)
+    table.insert(world.particles, { heart = true, x = best.x, y = best.y - 40,
+        vx = 0, vy = -50, r = 1, life = 0.8, max = 0.8 })
+    sfx.play("grab")
+end
+
 function world.action(p, action)
     if world.phase == "results" then
         if action == "grab" or action == "start" then world.done = true end
@@ -366,31 +393,11 @@ function world.action(p, action)
     if not k or k.burn > 0 then return end
 
     if action == "grab" then
-        if mare.tryCatch(k) then return end   -- near the pond: the net!
-        local best, bestD
-        for _, a in ipairs(world.animals) do
-            if a.state == "free" or a.state == "scared" or a.state == "back" then
-                local d = dist(k, a)
-                if d < k.look.reach and (not bestD or d < bestD) then best, bestD = a, d end
-            end
-        end
-        if not best then return end
-        if #k.followers + k.fish >= k.look.carry then
-            popup("Trop d'animaux !", k.x, k.y - 90, { 1, 1, 1 })
-            sfx.play("full")
-            return
-        end
-        best.state = "follow"
-        table.insert(k.followers, best)
-        table.insert(world.particles, { heart = true, x = best.x, y = best.y - 40,
-            vx = 0, vy = -50, r = 1, life = 0.8, max = 0.8 })
-        sfx.play("grab")
-        if best.kind == "renard" and not world.foxTipShown then
-            world.foxTipShown = true
-            banner("Attention ! Le renard fait peur aux poules et aux écureuils...", 5, { 1, 0.6, 0.2 })
-        end
+        tryGrab(k, true)
     elseif action == "drop" and #k.followers > 0 then
-        releaseFollowers(k)
+        -- let go of one animal only (the last in line), not all of them
+        local a = table.remove(k.followers)
+        a.state, a.tx, a.ty, a.wait = "free", a.x, a.y, rand(1, 2)
         sfx.play("drop")
     end
 end
@@ -429,6 +436,11 @@ end
 local function updateKid(k, dt)
     k.animT = k.animT + dt
     k.cheer = math.max(0, k.cheer - dt)
+    k.grabWait = math.max(0, (k.grabWait or 0) - dt)
+    -- holding the grab button keeps calling animals, one after the other
+    if world.phase == "play" and k.burn <= 0 and k.grabWait == 0 and input.held(k.player, "grab") then
+        tryGrab(k, false)
+    end
     if k.burn > 0 then
         -- Ouch! Bounce away from the lava.
         k.burn = k.burn - dt
@@ -580,15 +592,10 @@ local function checkPens(dt)
             pen.trouble = (pen.trouble or 0) + dt
             if pen.trouble > 1.5 then
                 pen.trouble = nil
-                local names = {}
                 for _, a in ipairs(prey) do
                     a.state = "scared"
                     a.tx, a.ty = rand(HILL_X - 260, HILL_X - 120), clamp(a.y + rand(-80, 80), TOP + 30, world.H - 20)
-                    names[a.kind == "poule" and "aux poules" or "aux écureuils"] = true
                 end
-                local list = {}
-                for n in pairs(names) do table.insert(list, n) end
-                banner("Oh non ! Le renard fait peur " .. table.concat(list, " et ") .. " !", 4, { 1, 0.6, 0.2 })
                 sfx.play("oops")
             end
         else
@@ -686,11 +693,9 @@ function world.update(dt)
         if progress >= 1 then
             world.phase = "calm"
             world.calmTimer = 3
-            banner("Ouf ! Le volcan s'est calmé !", 3, { 0.6, 1, 0.6 })
         elseif left == 0 then
             world.phase = "calm"
             world.calmTimer = 2
-            banner("Il n'y a plus d'animaux dans la forêt !", 2, { 0.6, 1, 0.6 })
         end
     elseif world.phase == "calm" then
         world.calmTimer = world.calmTimer - dt
@@ -769,32 +774,13 @@ local function lava()
     lave.draw(world.lavaX, world.time, world.H)
 end
 
-local function grabHint(k)
-    if #k.followers + k.fish >= k.look.carry or k.burn > 0 then return end
-    local best, bestD
-    for _, a in ipairs(world.animals) do
-        if a.state == "free" or a.state == "scared" or a.state == "back" then
-            local d = dist(k, a)
-            if d < k.look.reach and (not bestD or d < bestD) then best, bestD = a, d end
-        end
-    end
-    if best then
-        local bob = math.sin(world.time * 6) * 4
-        local x, y = best.x, best.y - 75 + bob
-        g.setColor(1, 1, 1, 0.95)
-        g.circle("fill", x, y, 16)
-        g.polygon("fill", x - 6, y + 12, x + 6, y + 12, x, y + 22)
-        art.heart(x, y - 1, 0.8)
-    end
-end
-
 local function drawKid(k)
     local hop = 0
     if not art.anims(k.look.id) and k.burn > 0 then hop = math.abs(math.sin(k.burn * 12)) * 20 end
     art.kid(k.look, k.x, k.y - hop, k.facing, 1.25, k.walk, k.anim, k.animT)
     mare.drawNet(k, 115 * k.look.size)
     if #world.kids > 1 then
-        outlined("J" .. k.player, fonts.small, k.x - 30, k.y - 120 * k.look.size - hop, 60,
+        outlined(T("player") .. k.player, fonts.small, k.x - 30, k.y - 120 * k.look.size - hop, 60,
             k.player == 1 and { 1, 0.75, 0.3 } or { 0.5, 0.8, 1 })
     end
 end
@@ -816,13 +802,13 @@ local function hud()
     g.setColor(0.2, 0.12, 0.08, 0.75)
     g.rectangle("fill", 440, 8, 400, 52, 16)
     art.heart(475, 34, 1.3)
-    outlined("Sauvés : " .. world.saved() .. " / " .. world.total, fonts.big, 490, 10, 340)
+    outlined(T("saved") .. world.saved() .. " / " .. world.total, fonts.big, 490, 10, 340)
 
     -- how far the lava has come (the timer)
     local progress = world.lavaProgress
     g.setColor(0.2, 0.12, 0.08, 0.75)
     g.rectangle("fill", 870, 8, 400, 52, 16)
-    outlined("Lave", fonts.small, 880, 22, 60)
+    outlined(T("lava"), fonts.small, 880, 22, 60)
     g.setColor(0.3, 0.3, 0.3)
     g.rectangle("fill", 945, 24, 300, 20, 10)
     g.setColor(1, 0.45 - progress * 0.25, 0.1)
@@ -844,13 +830,13 @@ local function results()
     local saved = world.saved()
     local ratio = saved / world.total
     local stars = ratio >= 0.8 and 3 or ratio >= 0.5 and 2 or 1
-    local title = stars == 3 and "Super héros !" or stars == 2 and "Bravo !" or "Bien joué !"
+    local title = T("win" .. stars)
     outlined(title, fonts.huge, 190, 95, 900, { 1, 0.8, 0.2 })
     for i = 1, 3 do
         local appear = clamp((world.resultsTime - i * 0.4) * 4, 0, 1)
         art.star(640 + (i - 2) * 110, 230, 45 * (i <= stars and appear or 1), i <= stars and appear > 0)
     end
-    outlined("Vous avez sauvé " .. saved .. " animaux sur " .. world.total .. " !", fonts.mid, 190, 290, 900)
+    outlined(T("result", saved, world.total), fonts.mid, 190, 290, 900)
 
     -- the saved animals, lined up
     -- the saved fish, in a row under the animals
@@ -875,7 +861,7 @@ local function results()
     end
     g.setFont(fonts.mid)
     g.setColor(0.45, 0.3, 0.18)
-    g.printf("Appuie sur le bouton du bas pour rejouer", 190, 595, 900, "center")
+    g.printf(T("again"), 190, 595, 900, "center")
 end
 
 function world.draw()
@@ -934,9 +920,6 @@ function world.draw()
         end
     end
     mare.drawLeaping()
-    for _, k in ipairs(world.kids) do
-        if not mare.drawHint(k, world.time) then grabHint(k) end
-    end
     for _, p in ipairs(world.popups) do
         outlined(p.text, p.big and fonts.big or fonts.mid, p.x - 200, p.y, 400, p.color)
     end
