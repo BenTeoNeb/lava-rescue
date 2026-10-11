@@ -34,7 +34,7 @@ def tree_sizes(names):
 # sheet -> (names in reading order, {name: shown size})
 SHEETS = {
     "animaux.jpg": (["renard", "poule", "ecureuil", "marcassin", "herisson"],
-                    {"renard": "h55", "poule": "h51", "ecureuil": "h55", "marcassin": "h92", "herisson": "h41"}),
+                    {"renard": "h55", "poule": "h51", "ecureuil": "h55", "marcassin": "h46", "herisson": "h41"}),
     "objets.jpg": (["champignon", "fleurs", "rocher", "buisson", "buche", "glands", "fougere", "feuille",
                     "pomme_de_pin", "branche"],
                    {"champignon": "h26", "fleurs": "h30", "rocher": "h26", "buisson": "h37", "buche": "h28",
