@@ -1,18 +1,18 @@
-# Games made with Rami, Zina and Lila
+# Sauve les Animaux !
 
-Two small 2D games for young children (from about 5 years old), played with
-**game controllers** (8BitDo, Xbox, PlayStation... or the keyboard), alone or
-**two players on the same screen**. Made with [LÖVE](https://love2d.org) 11.5.
+**Game made with children for children.**
 
-| Game | Folder | In one sentence |
-|---|---|---|
-| **Sauve les Animaux !** | [`volcan/`](volcan) | The volcano wakes up: save the forest animals and the pond fish before the lava reaches them. |
-| **Rugby de la Jungle** | [`mygame/`](mygame) | Lions, parrots and hyenas grab the balls thrown by a tower and bring them home. |
+The volcano wakes up: save the forest animals and the pond fish before the lava
+reaches them. A small 2D game for young children (from about 5 years old),
+played with **game controllers** (8BitDo, Xbox, PlayStation... or the
+keyboard), alone or **two players on the same screen**. Made with
+[LÖVE](https://love2d.org) 11.5.
 
-The game ideas come from the children; the art was made with image and video
-generation (Gemini, Veo) from their descriptions.
+The game ideas come from Rami, Zina and Lila; the art was made with image and
+video generation (Gemini, Veo) from their descriptions.
 
-## Sauve les Animaux !
+## The game
+
 
 - **1 or 2 players**, cooperative. Choose Rami (fast, carries 2 animals),
   Zina (strong, carries 4) or Lila (calls animals from further away).
@@ -93,11 +93,11 @@ Logged games (when playing from this folder) are in
 
 Two parts — see [LICENSE](LICENSE):
 
-- **Anyone may download and play the games**, and share them free and unchanged.
+- **Anyone may download and play the game**, and share them free and unchanged.
 - **Code: [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)**
   — the `.lua` files, the tools, the `game-art` skill and the docs: anyone may
   reuse, modify and share it in their own projects, **noncommercially**.
 - **Assets: all rights reserved** — images, animations, sheets, videos, the
   titles and the characters: **no reuse in any other project**.
-- **Selling the games** (Steam, stores...) is reserved to the author. The
+- **Selling the game** (Steam, stores...) is reserved to the author. The
   children's names and likenesses may not be used.
