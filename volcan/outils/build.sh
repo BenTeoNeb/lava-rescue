@@ -42,7 +42,43 @@ cd "$(dirname "$0")"
 # extract-and-run: works even where AppImages can't be mounted (no FUSE)
 APPIMAGE_EXTRACT_AND_RUN=1 exec ./love.AppImage lava-rescue.love "$@"
 SH
-chmod +x "$L/$NAME.sh" "$L/love.AppImage"
+cp "$GAME/images/icone.png" "$L/lava-rescue.png"
+cat > "$L/install.sh" <<'SH'
+#!/bin/sh
+# Install "Lava Rescue!" for this user (Bazzite, Steam Deck desktop mode, any
+# Linux): the game goes to ~/.local/share/lava-rescue and appears in the app
+# menu. Then in Steam: Games -> Add a Non-Steam Game -> Lava Rescue!
+set -e
+SRC="$(cd "$(dirname "$0")" && pwd)"
+DEST="$HOME/.local/share/lava-rescue"
+mkdir -p "$DEST" "$HOME/.local/share/applications" "$HOME/.local/share/icons/hicolor/256x256/apps"
+cp "$SRC/love.AppImage" "$SRC/lava-rescue.love" "$SRC/LavaRescue.sh" "$SRC/LICENSE" "$DEST/"
+cp "$SRC/lava-rescue.png" "$HOME/.local/share/icons/hicolor/256x256/apps/lava-rescue.png"
+chmod +x "$DEST/LavaRescue.sh" "$DEST/love.AppImage"
+cat > "$HOME/.local/share/applications/lava-rescue.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Lava Rescue!
+Name[fr]=Sauve les Animaux !
+Comment=Save the animals from the lava (1 or 2 players)
+Exec="$DEST/LavaRescue.sh"
+Path=$DEST
+Icon=lava-rescue
+Terminal=false
+Categories=Game;KidsGame;
+DESKTOP
+update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+echo "Lava Rescue! is installed: it is in the app menu (Games)."
+echo "To play from Steam / Game Mode: Steam -> Games -> Add a Non-Steam Game -> Lava Rescue!"
+SH
+cat > "$L/uninstall.sh" <<'SH'
+#!/bin/sh
+# Remove "Lava Rescue!" installed by install.sh.
+rm -rf "$HOME/.local/share/lava-rescue"
+rm -f "$HOME/.local/share/applications/lava-rescue.desktop" "$HOME/.local/share/icons/hicolor/256x256/apps/lava-rescue.png"
+echo "Lava Rescue! is removed."
+SH
+chmod +x "$L/$NAME.sh" "$L/love.AppImage" "$L/install.sh" "$L/uninstall.sh"
 (cd "$DIST" && rm -f "$NAME-linux.tar.gz" && tar -czf "$NAME-linux.tar.gz" "$NAME-linux")
 echo "OK  dist/$NAME-linux.tar.gz ($(du -h "$DIST/$NAME-linux.tar.gz" | cut -f1))"
 
