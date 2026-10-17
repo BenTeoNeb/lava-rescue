@@ -56,10 +56,12 @@ sh volcan/outils/build.sh       # -> dist/
 The Mac and Windows versions are not signed: the first time, right-click →
 Open (Mac) or "More info → Run anyway" (Windows).
 
-**Bazzite / Steam Deck / Linux:** unpack `LavaRescue-linux.tar.gz`, run
-`install.sh` (the game appears in the app menu), then in Steam: *Games → Add a
-Non-Steam Game → Lava Rescue!* to play it from Game Mode with the controllers.
-`uninstall.sh` removes it.
+**Bazzite / SteamOS / Steam Deck / Linux**: `LavaRescue-linux.tar.gz`. Unpack
+it in Desktop Mode and run `sh install.sh` in the folder: the game goes into
+`~/.local/share/lava-rescue` (no root needed), LÖVE is unpacked once (fast
+start, no FUSE needed) and "Lava Rescue!" appears in the applications menu.
+Then in Steam: Add a Non-Steam Game. Step by step (French and English) in
+`LISEZ-MOI-BAZZITE.txt`, inside the archive.
 
 ## How it is made
 
@@ -84,6 +86,9 @@ volcan/
   GEMINI.md         prompts and method for making the images by hand
   outils/
     build.sh        ready-to-play versions -> dist/
+    linux/          the Linux / Bazzite installer, its instructions, and a
+                    test in a Fedora container (test-fedora.sh)
+    icone/          draws the game's icon (icone.png) from its images
     hd.py           rebuild every image for 4K from planches/
     decoupe.py      cut a sheet (magenta background) into images
     video.py        Veo video (green screen) -> animation frames (24 fps)

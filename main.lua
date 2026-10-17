@@ -177,6 +177,10 @@ function love.resize()
 end
 
 function love.load()
+    -- the window's icon (made by outils/icone)
+    if love.filesystem.getInfo("icone.png") then
+        pcall(love.window.setIcon, love.image.newImageData("icone.png"))
+    end
     sfx.load()
     world.load()
     musique.load()
