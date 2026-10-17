@@ -56,6 +56,11 @@ sh volcan/outils/build.sh       # -> dist/
 The Mac and Windows versions are not signed: the first time, right-click →
 Open (Mac) or "More info → Run anyway" (Windows).
 
+**Bazzite / Steam Deck / Linux:** unpack `LavaRescue-linux.tar.gz`, run
+`install.sh` (the game appears in the app menu), then in Steam: *Games → Add a
+Non-Steam Game → Lava Rescue!* to play it from Game Mode with the controllers.
+`uninstall.sh` removes it.
+
 ## How it is made
 
 ```
