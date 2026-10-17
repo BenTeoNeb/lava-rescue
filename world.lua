@@ -753,15 +753,20 @@ function world.volcanoMood()
 end
 
 -- Write the end of the game in the log: how = "fin", "accueil" or "quitte".
+-- Stars at the end: none if nothing was saved, then 1, 2 (50%) and 3 (80%).
+local function starsFor(saved)
+    local ratio = saved / world.total
+    return saved <= 0 and 0 or ratio >= 0.8 and 3 or ratio >= 0.5 and 2 or 1
+end
+
 function world.logEnd(how)
     local byKind, lost = {}, {}
     for _, a in ipairs(world.animals) do
         if a.state == "home" then byKind[a.kind] = (byKind[a.kind] or 0) + 1
         else lost[a.kind] = (lost[a.kind] or 0) + 1 end
     end
-    local ratio = world.saved() / world.total
     journal.finish(how, { duree = math.floor(world.time), score = world.saved(), total = world.total,
-        etoiles = ratio >= 0.8 and 3 or ratio >= 0.5 and 2 or 1, sauves = byKind, pas_sauves = lost,
+        etoiles = starsFor(world.saved()), sauves = byKind, pas_sauves = lost,
         poissons = mare.count("jar"), maman = world.big and world.big.state == "home" or false,
         lave = math.floor(world.lavaProgress * 100) })
 end
@@ -865,7 +870,7 @@ function world.update(dt)
             world.phase = "results"
             world.resultsTime = 0
             world.logEnd("fin")
-            sfx.play("win")
+            sfx.play(world.saved() > 0 and "win" or "oops")
             world.duck = 3
         end
     elseif world.phase == "results" then
@@ -1010,8 +1015,7 @@ local function results()
     g.rectangle("line", 190, 70, 900, 580, 30)
 
     local saved = world.saved()
-    local ratio = saved / world.total
-    local stars = ratio >= 0.8 and 3 or ratio >= 0.5 and 2 or 1
+    local stars = starsFor(saved)
     local title = T("win" .. stars)
     outlined(title, fonts.huge, 190, 95, 900, { 1, 0.8, 0.2 })
     for i = 1, 3 do
@@ -1057,7 +1061,7 @@ local function results()
     end
     for i, k in ipairs(world.kids) do
         art.kid(k.look, 250 + (i - 1) * 780, 620, i == 1 and 1 or -1, 1.6,
-            0, "saut", world.time % ((art.duration(k.look.id, "saut") or 1) + 0.6))
+            0, saved > 0 and "saut" or "repos", world.time % ((art.duration(k.look.id, "saut") or 1) + 0.6))
     end
     art.hint({ "@a", T("again_short") }, world.W / 2, 610, fonts.mid)
 end
