@@ -1,19 +1,26 @@
 #!/bin/sh
 # Build "Lava Rescue!" for sharing:
 #   dist/lava-rescue.love        the game itself (needs LÖVE 11.5)
-#   dist/LavaRescue-linux.tar.gz  Linux / Bazzite / Steam Deck, nothing to install
+#   dist/LavaRescue-linux.tar.gz  Linux / Bazzite / Steam Deck: unpack, then
+#                                  install.sh adds it to the menu (and Steam)
 #   dist/LavaRescue-windows.zip   Windows, double-click LavaRescue.exe
 #   dist/LavaRescue-mac.zip       Mac, double-click the app (made from the LÖVE
 #                                      app installed in /Applications, if there is one)
 #
 # Run from anywhere:  sh volcan/outils/build.sh
-# The official LÖVE 11.5 builds are downloaded once into .cache/love/.
+# The official LÖVE 11.5 builds are downloaded once into .cache/love/ (in a
+# git worktree, the main checkout's .cache/love/ is used if it has them).
 set -e
 
 HERE="$(cd "$(dirname "$0")/../.." && pwd)"     # the "games" folder
 GAME="$HERE/volcan"
 DIST="$HERE/dist"
 CACHE="$HERE/.cache/love"
+if [ ! -f "$CACHE/love-11.5-x86_64.AppImage" ]; then
+    COMMON="$(git -C "$HERE" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+    MAIN="$(dirname "$COMMON")/.cache/love"
+    if [ -n "$COMMON" ] && [ -f "$MAIN/love-11.5-x86_64.AppImage" ]; then CACHE="$MAIN"; fi
+fi
 NAME="LavaRescue"
 LOVE_URL="https://github.com/love2d/love/releases/download/11.5"
 
@@ -26,60 +33,30 @@ done
 rm -f "$DIST/lava-rescue.love"
 # (journal.lua is left out: the game log is for us, not for the players;
 #  without it the game simply logs nothing)
-(cd "$GAME" && zip -q -9 -r "$DIST/lava-rescue.love" ./*.lua images -x "images/_*" "*.DS_Store" "./journal.lua")
+(cd "$GAME" && zip -q -9 -r "$DIST/lava-rescue.love" ./*.lua icone.png images -x "images/_*" "*.DS_Store" "./journal.lua")
 zip -q -j "$DIST/lava-rescue.love" "$HERE/LICENSE"      # the license travels with the game
 echo "OK  dist/lava-rescue.love ($(du -h "$DIST/lava-rescue.love" | cut -f1))"
 
-# 2) Linux: the LÖVE AppImage + the game + a launcher script
+# 2) Linux / Bazzite / Steam Deck: the LÖVE AppImage + the game + a launcher,
+#    an installer (menu entry, icon) and the instructions
 L="$DIST/$NAME-linux"
 rm -rf "$L" && mkdir -p "$L"
 cp "$CACHE/love-11.5-x86_64.AppImage" "$L/love.AppImage"
-cp "$DIST/lava-rescue.love" "$HERE/LICENSE" "$L/"
+cp "$DIST/lava-rescue.love" "$HERE/LICENSE" "$GAME/icone.png" "$L/"
+cp "$GAME/outils/linux/install.sh" "$GAME/outils/linux/LISEZ-MOI-BAZZITE.txt" "$L/"
 cat > "$L/$NAME.sh" <<'SH'
 #!/bin/sh
 # Launch "Lava Rescue!". In Steam: Add a Non-Steam Game -> this file.
 cd "$(dirname "$0")"
-# extract-and-run: works even where AppImages can't be mounted (no FUSE)
-APPIMAGE_EXTRACT_AND_RUN=1 exec ./love.AppImage lava-rescue.love "$@"
+# install.sh unpacks LÖVE once (fast start, no FUSE needed); otherwise the
+# AppImage unpacks itself at each start (works even without FUSE)
+if [ -x love/AppRun ]; then exec ./love/AppRun "$PWD/lava-rescue.love" "$@"; fi
+APPIMAGE_EXTRACT_AND_RUN=1 exec ./love.AppImage "$PWD/lava-rescue.love" "$@"
 SH
-cp "$GAME/images/icone.png" "$L/lava-rescue.png"
-cat > "$L/install.sh" <<'SH'
-#!/bin/sh
-# Install "Lava Rescue!" for this user (Bazzite, Steam Deck desktop mode, any
-# Linux): the game goes to ~/.local/share/lava-rescue and appears in the app
-# menu. Then in Steam: Games -> Add a Non-Steam Game -> Lava Rescue!
-set -e
-SRC="$(cd "$(dirname "$0")" && pwd)"
-DEST="$HOME/.local/share/lava-rescue"
-mkdir -p "$DEST" "$HOME/.local/share/applications" "$HOME/.local/share/icons/hicolor/256x256/apps"
-cp "$SRC/love.AppImage" "$SRC/lava-rescue.love" "$SRC/LavaRescue.sh" "$SRC/LICENSE" "$DEST/"
-cp "$SRC/lava-rescue.png" "$HOME/.local/share/icons/hicolor/256x256/apps/lava-rescue.png"
-chmod +x "$DEST/LavaRescue.sh" "$DEST/love.AppImage"
-cat > "$HOME/.local/share/applications/lava-rescue.desktop" <<DESKTOP
-[Desktop Entry]
-Type=Application
-Name=Lava Rescue!
-Name[fr]=Sauve les Animaux !
-Comment=Save the animals from the lava (1 or 2 players)
-Exec="$DEST/LavaRescue.sh"
-Path=$DEST
-Icon=lava-rescue
-Terminal=false
-Categories=Game;KidsGame;
-DESKTOP
-update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
-echo "Lava Rescue! is installed: it is in the app menu (Games)."
-echo "To play from Steam / Game Mode: Steam -> Games -> Add a Non-Steam Game -> Lava Rescue!"
-SH
-cat > "$L/uninstall.sh" <<'SH'
-#!/bin/sh
-# Remove "Lava Rescue!" installed by install.sh.
-rm -rf "$HOME/.local/share/lava-rescue"
-rm -f "$HOME/.local/share/applications/lava-rescue.desktop" "$HOME/.local/share/icons/hicolor/256x256/apps/lava-rescue.png"
-echo "Lava Rescue! is removed."
-SH
-chmod +x "$L/$NAME.sh" "$L/love.AppImage" "$L/install.sh" "$L/uninstall.sh"
-(cd "$DIST" && rm -f "$NAME-linux.tar.gz" && tar -czf "$NAME-linux.tar.gz" "$NAME-linux")
+chmod +x "$L/$NAME.sh" "$L/love.AppImage" "$L/install.sh"
+# (without macOS's extended attributes: Linux's tar would warn about them)
+(cd "$DIST" && rm -f "$NAME-linux.tar.gz" && COPYFILE_DISABLE=1 tar --no-xattrs --no-mac-metadata -czf "$NAME-linux.tar.gz" "$NAME-linux" 2>/dev/null \
+    || COPYFILE_DISABLE=1 tar -czf "$NAME-linux.tar.gz" "$NAME-linux")
 echo "OK  dist/$NAME-linux.tar.gz ($(du -h "$DIST/$NAME-linux.tar.gz" | cut -f1))"
 
 # 3) Windows: love.exe with the game glued at the end = one .exe, plus its DLLs

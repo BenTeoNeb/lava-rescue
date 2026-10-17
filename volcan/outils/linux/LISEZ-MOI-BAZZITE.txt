@@ -1,0 +1,43 @@
+SAUVE LES ANIMAUX ! (Lava Rescue!) - Bazzite, SteamOS, Steam Deck, Linux
+==============================================================================
+
+FRANÇAIS
+--------
+1. Passez en mode Bureau (Steam > Alimentation > Passer au bureau).
+2. Décompressez LavaRescue-linux.tar.gz (clic droit > Extraire > Extraire ici).
+3. Dans le dossier LavaRescue-linux, clic droit dans le vide > Ouvrir un
+   terminal ici, puis tapez :   sh install.sh
+   Le jeu est installé dans ~/.local/share/lava-rescue et apparaît dans le
+   menu des applications (Jeux > Lava Rescue!).
+4. Dans Steam (mode Bureau) : Jeux > Ajouter un jeu non-Steam à ma
+   bibliothèque > cochez "Lava Rescue!" > Ajouter la sélection.
+   (Sur SteamOS, install.sh l'ajoute peut-être déjà tout seul.)
+5. Revenez au mode Jeu : le jeu est dans la bibliothèque, onglet "Non-Steam".
+
+Manettes : 8BitDo, Xbox, PlayStation, ou les commandes du Steam Deck. Si les
+boutons ne répondent pas, dans Steam : Gérer > Disposition de la manette >
+choisir "Manette" (Gamepad).
+Jouer sans installer : double-cliquez sur LavaRescue.sh.
+Désinstaller :   sh ~/.local/share/lava-rescue/install.sh --uninstall
+Les records sont gardés dans ~/.local/share/love/sauve-les-animaux/
+
+
+ENGLISH
+-------
+1. Switch to Desktop Mode (Steam > Power > Switch to Desktop).
+2. Unpack LavaRescue-linux.tar.gz (right-click > Extract > Extract here).
+3. In the LavaRescue-linux folder, right-click on empty space > Open
+   Terminal Here, then type:   sh install.sh
+   The game is installed in ~/.local/share/lava-rescue and shows in the
+   applications menu (Games > Lava Rescue!).
+4. In Steam (Desktop Mode): Games > Add a Non-Steam Game to My Library >
+   tick "Lava Rescue!" > Add Selected Programs.
+   (On SteamOS, install.sh may already have added it.)
+5. Go back to Game Mode: the game is in the library, "Non-Steam" tab.
+
+Controllers: 8BitDo, Xbox, PlayStation, or the Steam Deck's own controls. If
+the buttons don't respond, in Steam: Manage > Controller Layout > choose
+"Gamepad".
+Play without installing: double-click LavaRescue.sh.
+Uninstall:   sh ~/.local/share/lava-rescue/install.sh --uninstall
+Your records are kept in ~/.local/share/love/sauve-les-animaux/
