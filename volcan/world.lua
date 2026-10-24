@@ -1132,6 +1132,7 @@ function world.draw()
     end
     g.pop()
 
+    if world.noHud then return end      -- (a clean picture: outils/steam)
     hud()
     if world.banner then
         g.setColor(0.2, 0.12, 0.08, 0.7)

@@ -43,7 +43,8 @@ L="$DIST/$NAME-linux"
 rm -rf "$L" && mkdir -p "$L"
 cp "$CACHE/love-11.5-x86_64.AppImage" "$L/love.AppImage"
 cp "$DIST/lava-rescue.love" "$HERE/LICENSE" "$GAME/icone.png" "$L/"
-cp "$GAME/outils/linux/install.sh" "$GAME/outils/linux/LISEZ-MOI-BAZZITE.txt" "$L/"
+cp "$GAME/outils/linux/install.sh" "$GAME/outils/linux/steam-art.py" "$GAME/outils/linux/LISEZ-MOI-BAZZITE.txt" "$L/"
+cp -R "$GAME/outils/linux/steam" "$L/steam"     # Steam library pictures (outils/steam/art.lua)
 cat > "$L/$NAME.sh" <<'SH'
 #!/bin/sh
 # Launch "Lava Rescue!". In Steam: Add a Non-Steam Game -> this file.

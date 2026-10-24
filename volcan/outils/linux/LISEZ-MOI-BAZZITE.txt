@@ -12,7 +12,12 @@ FRANÇAIS
 4. Dans Steam (mode Bureau) : Jeux > Ajouter un jeu non-Steam à ma
    bibliothèque > cochez "Lava Rescue!" > Ajouter la sélection.
    (Sur SteamOS, install.sh l'ajoute peut-être déjà tout seul.)
-5. Revenez au mode Jeu : le jeu est dans la bibliothèque, onglet "Non-Steam".
+5. Les images du jeu dans Steam (jaquette, bannière, logo) : fermez Steam,
+   puis tapez :   sh ~/.local/share/lava-rescue/install.sh --steam-art
+   et relancez Steam. (À la main : clic droit sur le jeu > Gérer > Définir
+   une illustration personnalisée, avec les images du dossier
+   ~/.local/share/lava-rescue/steam/.)
+6. Revenez au mode Jeu : le jeu est dans la bibliothèque, onglet "Non-Steam".
 
 Manettes : 8BitDo, Xbox, PlayStation, ou les commandes du Steam Deck. Si les
 boutons ne répondent pas, dans Steam : Gérer > Disposition de la manette >
@@ -33,7 +38,11 @@ ENGLISH
 4. In Steam (Desktop Mode): Games > Add a Non-Steam Game to My Library >
    tick "Lava Rescue!" > Add Selected Programs.
    (On SteamOS, install.sh may already have added it.)
-5. Go back to Game Mode: the game is in the library, "Non-Steam" tab.
+5. The game's pictures in Steam (cover, banner, logo): close Steam, then
+   type:   sh ~/.local/share/lava-rescue/install.sh --steam-art
+   and start Steam again. (By hand: right-click the game > Manage > Set
+   custom artwork, with the pictures in ~/.local/share/lava-rescue/steam/.)
+6. Go back to Game Mode: the game is in the library, "Non-Steam" tab.
 
 Controllers: 8BitDo, Xbox, PlayStation, or the Steam Deck's own controls. If
 the buttons don't respond, in Steam: Manage > Controller Layout > choose

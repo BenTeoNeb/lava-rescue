@@ -60,8 +60,9 @@ Open (Mac) or "More info → Run anyway" (Windows).
 it in Desktop Mode and run `sh install.sh` in the folder: the game goes into
 `~/.local/share/lava-rescue` (no root needed), LÖVE is unpacked once (fast
 start, no FUSE needed) and "Lava Rescue!" appears in the applications menu.
-Then in Steam: Add a Non-Steam Game. Step by step (French and English) in
-`LISEZ-MOI-BAZZITE.txt`, inside the archive.
+Then in Steam: Add a Non-Steam Game, and `sh install.sh --steam-art` gives it
+its cover, banner and logo in the library. Step by step (French and English)
+in `LISEZ-MOI-BAZZITE.txt`, inside the archive.
 
 ## How it is made
 
@@ -89,6 +90,8 @@ volcan/
     linux/          the Linux / Bazzite installer, its instructions, and a
                     test in a Fedora container (test-fedora.sh)
     icone/          draws the game's icon (icone.png) from its images
+    steam/          draws the Steam library pictures (love volcan --steam-art),
+                    kept in linux/steam/
     hd.py           rebuild every image for 4K from planches/
     decoupe.py      cut a sheet (magenta background) into images
     video.py        Veo video (green screen) -> animation frames (24 fps)
