@@ -4,6 +4,8 @@
 #
 #   sh install.sh               install (or update), add to the menu (and Steam)
 #   sh install.sh --uninstall   remove it (your records are kept)
+#   sh install.sh --steam-art   give Steam the game's pictures again (after
+#                               adding it to Steam by hand)
 #
 # Installs into ~/.local/share/lava-rescue, unpacks LÖVE there once (fast
 # start, no FUSE needed), and adds "Lava Rescue!" to the applications menu.
@@ -14,9 +16,20 @@ DEST="${XDG_DATA_HOME:-$HOME/.local/share}/lava-rescue"
 APPS="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
 DESKTOP="$APPS/lava-rescue.desktop"
 SAVES="${XDG_DATA_HOME:-$HOME/.local/share}/love/sauve-les-animaux"
+ICON="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/512x512/apps/lava-rescue.png"
+
+# Steam's library pictures (cover, banner, logo): Steam must know the game
+steam_art() {
+    if ! command -v python3 >/dev/null 2>&1; then return; fi
+    python3 "$DEST/steam-art.py" "$DEST/steam" "LavaRescue.sh" "Lava Rescue" && \
+        echo "    (redémarrez Steam pour les voir / restart Steam to see them)" && return
+    echo "Steam : quand le jeu est ajouté à Steam, relancez / once the game is in Steam, run:"
+    echo "        sh \"$DEST/install.sh\" --steam-art   (puis redémarrez Steam / then restart Steam)"
+}
+if [ "$1" = "--steam-art" ]; then steam_art; exit 0; fi
 
 if [ "$1" = "--uninstall" ]; then
-    rm -rf "$DEST" "$DESKTOP"
+    rm -rf "$DEST" "$DESKTOP" "$ICON"
     command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$APPS" >/dev/null 2>&1 || true
     echo "Lava Rescue! est désinstallé / is uninstalled."
     echo "Les records restent ici / your records are kept here: $SAVES"
@@ -27,9 +40,10 @@ fi
 # 1) the files
 mkdir -p "$DEST"
 if [ "$HERE" != "$DEST" ]; then
-    for f in LavaRescue.sh lava-rescue.love love.AppImage icone.png LICENSE install.sh LISEZ-MOI-BAZZITE.txt; do
+    for f in LavaRescue.sh lava-rescue.love love.AppImage icone.png LICENSE install.sh steam-art.py LISEZ-MOI-BAZZITE.txt; do
         [ -f "$HERE/$f" ] && cp "$HERE/$f" "$DEST/"
     done
+    [ -d "$HERE/steam" ] && rm -rf "$DEST/steam" && cp -R "$HERE/steam" "$DEST/steam"
 fi
 chmod +x "$DEST/LavaRescue.sh" "$DEST/love.AppImage" "$DEST/install.sh"
 
@@ -60,8 +74,12 @@ else
     fi
 fi
 
-# 3) the menu entry, with the icon
-mkdir -p "$APPS"
+# 3) the menu entry, with the icon (in the icon theme: every menu and launcher
+#    finds it there, also Steam when the game is added from the menu)
+mkdir -p "$APPS" "$(dirname "$ICON")"
+cp "$DEST/icone.png" "$ICON"
+command -v gtk-update-icon-cache >/dev/null 2>&1 && \
+    gtk-update-icon-cache -q -t "${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor" >/dev/null 2>&1 || true
 cat > "$DESKTOP" <<EOF
 [Desktop Entry]
 Type=Application
@@ -71,7 +89,7 @@ Comment=The volcano wakes up: save the forest animals! 1 or 2 players, with game
 Comment[fr]=Le volcan se réveille : sauve les animaux de la forêt ! 1 ou 2 joueurs, avec des manettes.
 Exec="$DEST/LavaRescue.sh"
 Path=$DEST
-Icon=$DEST/icone.png
+Icon=lava-rescue
 Terminal=false
 Categories=Game;ArcadeGame;KidsGame;
 StartupNotify=false
@@ -92,4 +110,5 @@ else
     echo "Steam : Ajouter un jeu > Ajouter un jeu non-Steam > Lava Rescue!"
     echo "        Add a Game > Add a Non-Steam Game > Lava Rescue!"
 fi
+steam_art
 echo "Installé dans / installed in: $DEST"
