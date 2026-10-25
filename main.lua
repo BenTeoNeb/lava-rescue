@@ -412,7 +412,8 @@ function love.keypressed(key)
     if p then onAction(p, action) end
 end
 
--- Tool: `love . --steam-art` makes the Steam library artwork (outils/steam).
+-- Tool: `love . --steam-art` makes the Steam library artwork (outils/steam, in the
+-- private game-maker repository: copy it here to use it).
 for _, a in ipairs(arg or {}) do
     if a == "--steam-art" then dofile(love.filesystem.getSource() .. "/outils/steam/art.lua") end
 end

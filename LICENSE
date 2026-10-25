@@ -17,8 +17,7 @@ is reserved to the copyright holder.
 1. ASSETS — All rights reserved
 ===============================================================================
 
-Covers: everything in volcan/images/, volcan/planches/, volcan/videos/ and
-docs/ (illustrations, sprites, animations, sheets, videos, screenshots),
+Covers: everything in images/ and docs/ (illustrations, sprites, animations, sheets, videos, screenshots),
 and the game's title, characters and world ("Lava Rescue!", "Sauve les Animaux !",
 Rami, Zina, Lila and the animal characters).
 
@@ -31,17 +30,16 @@ The first names, likenesses and personal identity of the children who appear
 in the game (Rami, Zina, Lila) may not be used for any purpose.
 
 What you MAY do: download this repository (or a ready-to-play version made by
-volcan/outils/build.sh), play the game, and share them free of charge,
+outils/build.sh), play the game, and share them free of charge,
 unchanged and with this file. The assets may only be used inside this game.
 
 ===============================================================================
 2. CODE — PolyForm Noncommercial License 1.0.0
 ===============================================================================
 
-Covers: every source and tool file of this repository — the *.lua files of
-volcan/ (including the procedural sound and music code), the
-tools in volcan/outils/, the skill in .claude/skills/, art.json and the
-documentation (README.md, GEMINI.md, prompts).
+Covers: every source and tool file of this repository — the *.lua files
+(including the procedural sound and music code), the tools in outils/ and
+the documentation (README.md).
 
 Required Notice: Copyright (c) 2026 Benjamin Farcy (https://github.com/BenTeoNeb)
 

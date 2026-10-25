@@ -4,9 +4,9 @@
 # virtual 1280x800 screen (screenshot in /out, after WAIT s: 12 by default,
 # more for a game that loads big images under emulation), and the uninstall.
 #
-# From the "games" folder, after sh volcan/outils/build.sh:
+# From the game's folder, after sh outils/build.sh:
 #   docker run --rm --platform linux/amd64 -v "$PWD/dist:/dist:ro" \
-#     -v "$PWD/dist/out:/out" -v "$PWD/volcan/outils/linux:/t:ro" fedora:41 bash /t/test-fedora.sh
+#     -v "$PWD/dist/out:/out" -v "$PWD/outils/linux:/t:ro" fedora:41 bash /t/test-fedora.sh
 # On an Apple Silicon Mac: Colima with Rosetta (colima start --vz-rosetta).
 # Under Rosetta, the AppImage can't run itself (its magic bytes, /proc/self/exe):
 # install.sh's plan B (unsquashfs) is what gets tested; a real x86_64 PC runs it as is.

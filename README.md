@@ -44,14 +44,14 @@ video generation (Gemini, Veo) from their descriptions.
 Install LÖVE 11.5 (https://love2d.org), then from this folder:
 
 ```bash
-/Applications/love.app/Contents/MacOS/love volcan     # macOS
-love volcan                                           # Linux / Windows (LÖVE in the PATH)
+/Applications/love.app/Contents/MacOS/love .     # macOS
+love .                                           # Linux / Windows (LÖVE in the PATH)
 ```
 
 Or make the ready-to-play versions (Mac, Windows, Linux / Steam Deck, .love):
 
 ```bash
-sh volcan/outils/build.sh       # -> dist/
+sh outils/build.sh       # -> dist/
 ```
 The Mac and Windows versions are not signed: the first time, right-click →
 Open (Mac) or "More info → Run anyway" (Windows).
@@ -67,44 +67,30 @@ in `LISEZ-MOI-BAZZITE.txt`, inside the archive.
 ## How it is made
 
 ```
-volcan/
-  main.lua          menus, home screen, sound / language / fullscreen
-  world.lua         the game: lava, kids, animals, pens, score, end screen
-  mare.lua          the pond, the fish, the net, the jar hut
-  events.lua        golden animal, big mama
-  art.lua           drawing the characters, animals, decor (images + fallbacks)
-  lave.lua          the lava (shader)
-  synth.lua         sound synthesizer (everything is made in code)
-  sfx.lua           sound effects and animal voices
-  musique.lua       adaptive music (tension layer follows the lava) and ambience
-  lang.lua          all texts, French and English
-  input.lua         controllers and keyboard
-  journal.lua       log of real games (local only, not in the shipped builds)
-  images/           game images (made by the tools below, for screens up to 4K)
-  planches/         original sheets from Gemini (sources of images/)
-  videos/           Veo videos of the children (sources of their animations)
-  art.json          description of every image: on-screen size, prompt...
-  GEMINI.md         prompts and method for making the images by hand
-  outils/
-    build.sh        ready-to-play versions -> dist/
-    linux/          the Linux / Bazzite installer, its instructions, and a
-                    test in a Fedora container (test-fedora.sh)
-    icone/          draws the game's icon (icone.png) from its images
-    steam/          draws the Steam library pictures (love volcan --steam-art),
-                    kept in linux/steam/
-    hd.py           rebuild every image for 4K from planches/
-    decoupe.py      cut a sheet (magenta background) into images
-    video.py        Veo video (green screen) -> animation frames (24 fps)
-    texture.py      seamless ground tile
-    bake.py         4K sizing and even outlines
-    parties.py      summary of the logged games
-.claude/skills/game-art/   the same art pipeline, driving the Gemini image and
-                           Veo APIs (sizes, 4K, style, budget cap)
+main.lua          menus, home screen, sound / language / fullscreen
+world.lua         the game: lava, kids, animals, pens, score, end screen
+mare.lua          the pond, the fish, the net, the jar hut
+events.lua        golden animal, big mama
+art.lua           drawing the characters, animals, decor (images + fallbacks)
+lave.lua          the lava (shader)
+synth.lua         sound synthesizer (everything is made in code)
+sfx.lua           sound effects and animal voices
+musique.lua       adaptive music (tension layer follows the lava) and ambience
+lang.lua          all texts, French and English
+input.lua         controllers and keyboard
+journal.lua       log of real games (local only, not in the shipped builds)
+images/           game images (for screens up to 4K)
+outils/
+  build.sh        ready-to-play versions -> dist/
+  linux/          the Linux / Bazzite installer, its instructions, its Steam
+                  pictures, and a test in a Fedora container (test-fedora.sh)
 ```
 
+The art sources (the Gemini sheets, the Veo videos, the prompts) and the
+tools that made the images are kept in a separate, private repository.
+
 Logged games (when playing from this folder) are in
-`~/Library/Application Support/LOVE/sauve-les-animaux/parties/` (macOS);
-`python3 volcan/outils/parties.py --detail` summarizes them.
+`~/Library/Application Support/LOVE/sauve-les-animaux/parties/` (macOS).
 
 ## License
 

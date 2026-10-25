@@ -7,13 +7,13 @@
 #   dist/LavaRescue-mac.zip       Mac, double-click the app (made from the LÖVE
 #                                      app installed in /Applications, if there is one)
 #
-# Run from anywhere:  sh volcan/outils/build.sh
+# Run from anywhere:  sh outils/build.sh
 # The official LÖVE 11.5 builds are downloaded once into .cache/love/ (in a
 # git worktree, the main checkout's .cache/love/ is used if it has them).
 set -e
 
-HERE="$(cd "$(dirname "$0")/../.." && pwd)"     # the "games" folder
-GAME="$HERE/volcan"
+HERE="$(cd "$(dirname "$0")/.." && pwd)"        # the game's folder (this repository)
+GAME="$HERE"
 DIST="$HERE/dist"
 CACHE="$HERE/.cache/love"
 if [ ! -f "$CACHE/love-11.5-x86_64.AppImage" ]; then
